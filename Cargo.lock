@@ -15,7 +15,7 @@ dependencies = [
 
 [[package]]
 name = "logging_timer"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
