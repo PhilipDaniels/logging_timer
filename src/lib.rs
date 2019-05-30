@@ -1,5 +1,6 @@
-//! Provides a couple of simple timers that output messages indicating the elapsed time via the
-//! [log](https://crates.io/crates/log) crate when they are dropped.
+//! Provides a couple of simple timers that log messages indicating the elapsed time between
+//! their creation and dropping. Messages are output via the [log](https://crates.io/crates/log)
+//! crate.
 //!
 //! Timers have names, and the log messages are constructed in such a way that they contain
 //! the module, filename and line number of the place where the timer was constructed.
