@@ -164,7 +164,7 @@ enum TimerTarget {
 macro_rules! timer {
     ($name:expr) => {
         {
-            crate::LoggingTimer::new(
+            $crate::LoggingTimer::new(
                 file!(),
                 module_path!(),
                 line!(),
@@ -176,7 +176,7 @@ macro_rules! timer {
 
     ($name:expr, $format:tt) => {
         {
-            crate::LoggingTimer::new(
+            $crate::LoggingTimer::new(
                 file!(),
                 module_path!(),
                 line!(),
@@ -188,7 +188,7 @@ macro_rules! timer {
 
     ($name:expr, $format:tt, $($arg:expr),*) => {
         {
-            crate::LoggingTimer::new(
+            $crate::LoggingTimer::new(
                 file!(),
                 module_path!(),
                 line!(),
@@ -204,7 +204,7 @@ macro_rules! timer {
 macro_rules! stimer {
     ($name:expr) => {
         {
-            crate::LoggingTimer::with_start_message(
+            $crate::LoggingTimer::with_start_message(
                 file!(),
                 module_path!(),
                 line!(),
@@ -216,7 +216,7 @@ macro_rules! stimer {
 
     ($name:expr, $format:tt) => {
         {
-            crate::LoggingTimer::with_start_message(
+            $crate::LoggingTimer::with_start_message(
                 file!(),
                 module_path!(),
                 line!(),
@@ -228,7 +228,7 @@ macro_rules! stimer {
 
     ($name:expr, $format:tt, $($arg:expr),*) => {
         {
-            crate::LoggingTimer::with_start_message(
+            $crate::LoggingTimer::with_start_message(
                 file!(),
                 module_path!(),
                 line!(),
