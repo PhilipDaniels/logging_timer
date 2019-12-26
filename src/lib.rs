@@ -16,7 +16,7 @@
 //! ```norun
 //! use logging_timer::{timer};
 //!
-//! fn find_files(dir: PathBuf) -> List<PathBuf> {
+//! fn find_files(dir: PathBuf) -> Vec<PathBuf> {
 //!     let _tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!
@@ -48,7 +48,7 @@
 //! ```norun
 //! use logging_timer::{timer, executing};
 //!
-//! fn find_files(dir: PathBuf) -> List<PathBuf> {
+//! fn find_files(dir: PathBuf) -> Vec<PathBuf> {
 //!     let tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!
@@ -71,7 +71,7 @@
 //! ```norun
 //! use logging_timer::{timer, executing, finish};
 //!
-//! fn find_files(dir: PathBuf) -> List<PathBuf> {
+//! fn find_files(dir: PathBuf) -> Vec<PathBuf> {
 //!     let tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!

@@ -18,7 +18,7 @@ name is optional but helps make the name stand out in the log)
 ```norun
 use logging_timer::{timer};
 
-fn find_files(dir: PathBuf) -> List<PathBuf> {
+fn find_files(dir: PathBuf) -> Vec<PathBuf> {
     let _tmr = timer!("FIND_FILES");
     let files = vec![];
 
@@ -46,7 +46,7 @@ You can call it as many times as you want. A pseudocode example:
 ```norun
 use logging_timer::{timer, executing};
 
-fn find_files(dir: PathBuf) -> List<PathBuf> {
+fn find_files(dir: PathBuf) -> Vec<PathBuf> {
     let tmr = timer!("FIND_FILES");
     let files = vec![];
 
@@ -69,7 +69,7 @@ finished.
 ```norun
 use logging_timer::{timer, executing, finish};
 
-fn find_files(dir: PathBuf) -> List<PathBuf> {
+fn find_files(dir: PathBuf) -> Vec<PathBuf> {
     let tmr = timer!("FIND_FILES");
     let files = vec![];
 
@@ -117,4 +117,4 @@ different usages. To run, clone the repository and do
 
 # History
 
-See the [CHANGELOG.md](CHANGELOG).
+See the [CHANGELOG](CHANGELOG.md).
