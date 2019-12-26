@@ -28,7 +28,10 @@ fn main() {
     stimer_with_intermediate_messages_and_no_automatic_final_message();
 
     println!("");
-    timer_with_custom_log_level();
+    timer_with_inline_log_level();
+
+    println!("");
+    stimer_with_inline_log_level();
 
     println!("");
     stimer_with_args();
@@ -38,6 +41,9 @@ fn main() {
 
     println!("");
     finish_with_args();
+
+    println!("");
+    execute_and_finish_without_args();
 }
 
 // Section 1. Basic operation of all macros.
@@ -63,8 +69,16 @@ fn stimer_with_intermediate_messages_and_no_automatic_final_message() {
 }
 
 // Section 2. Changing the log level.
-fn timer_with_custom_log_level() {
-    let _tmr = timer!("CUSTOM_LOG_LEVEL").level(Level::Warn);
+fn timer_with_inline_log_level() {
+    let _tmr1 = timer!(Level::Info; "TIMER_AT_INFO", "Got {} widgets", 5);
+    let _tmr2 = timer!(Level::Warn; "TIMER_AT_WARN");
+    let _tmr3 = timer!(Level::Error; "TIMER_AT_ERROR", "more info");
+}
+
+fn stimer_with_inline_log_level() {
+    let _tmr1 = stimer!(Level::Info; "S_TIMER_AT_INFO", "Got {} widgets", 5);
+    let _tmr2 = stimer!(Level::Warn; "S_TIMER_AT_WARN");
+    let _tmr3 = stimer!(Level::Error; "S_TIMER_AT_ERROR", "more info");
 }
 
 // Section 3. Using format args.
@@ -75,6 +89,7 @@ fn stimer_with_args() {
 
 fn executing_with_args() {
     let tmr = stimer!("EXEC_WITH_ARGS", "Expecting to process {} widgets", 20);
+    executing!(tmr);
     executing!(tmr, "More info: Processed {} widgets", 5);
     executing!(tmr, "More info: Processed {} widgets", 10);
 }
@@ -84,6 +99,12 @@ fn finish_with_args() {
     executing!(tmr, "More info: Processed {} widgets", 10);
     executing!(tmr, "More info: Processed {} widgets", 20);
     finish!(tmr, "Done. Processed {} widgets", 20);
+}
+
+fn execute_and_finish_without_args() {
+    let tmr = stimer!("WITHOUT_ARGS", "Expecting to process {} widgets", 20);
+    executing!(tmr);
+    finish!(tmr);
 }
 
 // Just configures logging in such a way that we can see everything.

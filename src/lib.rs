@@ -1,6 +1,6 @@
-//! Provides a couple of simple timers that log messages indicating the elapsed time between
-//! their creation and dropping. Messages are output via the [log](https://crates.io/crates/log)
-//! crate.
+//! This crate provides a couple of simple timers that log messages indicating the elapsed
+//! time between their creation and dropping. Messages are output via the
+//! [log](https://crates.io/crates/log) crate.
 //!
 //! Timers have names, and the log messages are constructed in such a way that they contain
 //! the module, filename and line number of the place where the timer was constructed.
@@ -10,13 +10,14 @@
 //! returns a timer that logs a started message as soon as it is created, and a finished
 //! message when it is dropped.
 //!
-//! Example - "Find Files" is the name of the timer:
+//! In this example "FIND_FILES" is the name of the timer (using all UPPERCASE for the timer
+//! name is optional but helps make the name stand out in the log)
 //!
 //! ```norun
 //! use logging_timer::{timer};
 //!
 //! fn find_files(dir: PathBuf) -> List<PathBuf> {
-//!     let _tmr = timer!("Find Files");
+//!     let _tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!
 //!     // expensive operation here
@@ -25,6 +26,10 @@
 //! } // _tmr is dropped here and a 'TimerFinished' message is logged
 //!```
 //!
+//! Note that you have to assign the result of the macro to a variable, otherwise Rust will
+//! drop the returned timer object *immediately*, which is not what you want (you want it to
+//! be dropped at the end of scope).
+//!
 //! You can replace `timer!` with `stimer!` to get a timer that logs a starting message as
 //! well, giving you a pair of 'bracketing' log messages.
 //!
@@ -32,7 +37,7 @@
 //! style parameters, allowing you to include extra information in the log messages.
 //!
 //! ```norun
-//! let tmr = timer!("Find Files", "Directory = {}", dir);
+//! let _tmr = timer!("FIND_FILES", "Directory = {}", dir);
 //! ```
 //!
 //! # Outputting Intermediate Messages
@@ -44,7 +49,7 @@
 //! use logging_timer::{timer, executing};
 //!
 //! fn find_files(dir: PathBuf) -> List<PathBuf> {
-//!     let tmr = timer!("Find Files");
+//!     let tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!
 //!     for dir in sub_dirs(dir) {
@@ -58,7 +63,7 @@
 //!
 //! # Controlling the Final Message
 //!
-//! Finally, the `finish!` macro also makes the timer log a message, but it also has the side
+//! The `finish!` macro also makes the timer log a message, but it also has the side
 //! effect of suppressing the normal drop message.  `finish!` is useful when you want the final
 //! message to include some information that you did not have access to until the calculation had
 //! finished.
@@ -67,7 +72,7 @@
 //! use logging_timer::{timer, executing, finish};
 //!
 //! fn find_files(dir: PathBuf) -> List<PathBuf> {
-//!     let tmr = timer!("Find Files");
+//!     let tmr = timer!("FIND_FILES");
 //!     let files = vec![];
 //!
 //!     finish!(tmr, "Found {} files", files.len());
@@ -75,35 +80,36 @@
 //! } // tmr is dropped here but no message is produced.
 //!```
 //!
+//! # Setting the log level
+//!
+//! By default both `timer` and `stimer` log at `Debug` level. An optional first parameter to
+//! these macros allows you to set the log level. **To aid parsing of the macro arguments this
+//! first parameter is terminated by a semi-colon.** For example:
+//!
+//! ```norun
+//! let tmr1 = timer!(Level::Warn; "TIMER_AT_WARN");
+//! let tmr2 = stimer!(Level::Info; "TIMER_AT_INFO");
+//! ```
 //! # Example of Timer Output
 //!
 //! The overall format will depend on how you customize the output format of the log crate, but as an illustrative example:
 //!
 //! ```text
-//! 2019-05-30T21:41:41.847982550Z DEBUG [TimerStarting] [dnscan/src/main.rs/63] Directory Analysis
+//! 2019-05-30T21:41:41.847982550Z DEBUG [TimerStarting] [dnscan/src/main.rs/63] DIRECTORY_ANALYSIS
 //! 2019-05-30T21:41:41.868690703Z INFO [dnlib::configuration] [dnlib/src/configuration.rs/116] Loaded configuration from "/home/phil/.dnscan/.dnscan.json"
-//! 2019-05-30T21:41:41.897609281Z DEBUG [TimerFinished] [dnlib/src/io.rs/67] Elapsed=28.835275ms, Find Files, Dir="/home/phil/mydotnetprojects", NumSolutions=1 NumCsproj=45, NumOtherFiles=12
-//! 2019-05-30T21:41:41.955140835Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/93] Elapsed=57.451736ms, Load And Analyze Solution files
-//! 2019-05-30T21:41:42.136762196Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/108] Elapsed=181.563223ms, Load And Analyze Project files, Found 43 linked projects and 2 orphaned projects
-//! 2019-05-30T21:41:42.136998556Z DEBUG [TimerStarting] [dnscan/src/main.rs/87] Calculate project graphs and redundant projects
-//! 2019-05-30T21:41:42.143072972Z DEBUG [TimerExecuting] [dnscan/src/main.rs/87] Elapsed=6.075205ms, Calculate project graphs and redundant projects, Individual graphs done
-//! 2019-05-30T21:41:42.149218039Z DEBUG [TimerFinished] [dnscan/src/main.rs/87] Elapsed=12.219438ms, Calculate project graphs and redundant projects, Found 19 redundant project relationships
-//! 2019-05-30T21:41:42.165724712Z DEBUG [TimerFinished] [dnscan/src/main.rs/108] Elapsed=16.459312ms, Write output files
-//! 2019-05-30T21:41:42.166445Z INFO [TimerFinished] [dnscan/src/main.rs/63] Elapsed=318.48581ms, Directory Analysis
+//! 2019-05-30T21:41:41.897609281Z DEBUG [TimerFinished] [dnlib/src/io.rs/67] FIND_FILES, Elapsed=28.835275ms, Dir="/home/phil/mydotnetprojects", NumSolutions=1 NumCsproj=45, NumOtherFiles=12
+//! 2019-05-30T21:41:41.955140835Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/93] LOAD_SOLUTIONS, Elapsed=57.451736ms
+//! 2019-05-30T21:41:42.136762196Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/108] LOAD_PROJECTS, Elapsed=181.563223ms, Found 43 linked projects and 2 orphaned projects
+//! 2019-05-30T21:41:42.136998556Z DEBUG [TimerStarting] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH
+//! 2019-05-30T21:41:42.143072972Z DEBUG [TimerExecuting] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH, Elapsed=6.075205ms, Individual graphs done
+//! 2019-05-30T21:41:42.149218039Z DEBUG [TimerFinished] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH, Elapsed=12.219438ms, Found 19 redundant project relationships
+//! 2019-05-30T21:41:42.165724712Z DEBUG [TimerFinished] [dnscan/src/main.rs/108] WRITE_OUTPUT_FILES, Elapsed=16.459312ms
+//! 2019-05-30T21:41:42.166445Z INFO [TimerFinished] [dnscan/src/main.rs/63] DIRECTORY_ANALYSIS, Elapsed=318.48581ms
 //! ```
 //!
 //! Here the `[Timer*]` blocks are the `target` field from log's [Record](https://docs.rs/log/0.4.6/log/struct.Record.html)
 //! struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
 //! instantiated. The module is also set, but is not shown in these examples.
-//! Note how the timer named 'Directory Analysis' is the only one to log both a starting and ending message.
-//!
-//! By default messages are output at DEBUG level, you can control this using the `level()` builder method:
-//!
-//! ```norun
-//! let _tmr = timer!("Directory Analysis").level(Level::Info);
-//! ```
-//!
-//! (There is a bug, this does not work for `stimer!` yet, only `timer!`)
 
 
 use log::{log_enabled, Level, RecordBuilder};
@@ -144,10 +150,11 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
+        level: Level,
     ) -> Self
     {
         LoggingTimer {
-            level: Level::Debug,
+            level: level,
             start_time: Instant::now(),
             file: file,
             module_path: module_path,
@@ -166,6 +173,7 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
+        level: Level
     ) -> Self
     {
         // Determine this before calling log_impl, since logging will take time
@@ -173,7 +181,7 @@ impl<'name> LoggingTimer<'name> {
         let start_time = Instant::now();
 
         let tmr = LoggingTimer {
-            level: Level::Debug,
+            level: level,
             start_time: start_time,
             file: file,
             module_path: module_path,
@@ -199,6 +207,7 @@ impl<'name> LoggingTimer<'name> {
     /// ```norun
     /// let tmr = timer!("foo").level(Level::Trace);
     /// ```
+    #[deprecated(since="0.3", note="Please use the first parameter to the `timer` or `stimer` macro instead")]
     pub fn level(mut self, level: Level) -> Self {
         self.level = level;
         self
@@ -272,6 +281,22 @@ enum TimerTarget {
     Finished,
 }
 
+
+/* TODO: These macro definitions are very verbose, especially the duplication to get
+ * 'level' to work, but after much hacking this was the only combination I could
+ * get to work. There is probably a way to reduce the duplication, especially
+ * by making the 'level' bit optional.
+ */
+
+ /* TODO: Write proc-macro versions of timer and stimer which can be used to
+  * decorate a function.
+  */
+
+ /* TODO: Can we improve performance by doing less work depending on the enabled
+  * log level? We have taken first steps towards that in `log_impl`, but we might
+  * be able to avoid a lot more work, such as getting the time.
+  */
+
 /// Creates a timer that does not log a starting message, only a finished one.
 #[macro_export]
 macro_rules! timer {
@@ -283,6 +308,20 @@ macro_rules! timer {
                 line!(),
                 $name,
                 None,
+                Level::Debug,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr) => {
+        {
+            $crate::LoggingTimer::new(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                None,
+                $level,
                 )
         }
     };
@@ -295,6 +334,20 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format)),
+                Level::Debug,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr, $format:tt) => {
+        {
+            $crate::LoggingTimer::new(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                Some(format!($format)),
+                $level,
                 )
         }
     };
@@ -307,6 +360,20 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
+                Level::Debug,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr, $format:tt, $($arg:expr),*) => {
+        {
+            $crate::LoggingTimer::new(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                Some(format!($format, $($arg), *)),
+                $level,
                 )
         }
     };
@@ -323,6 +390,33 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 None,
+                Level::Debug,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr) => {
+        {
+            $crate::LoggingTimer::with_start_message(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                None,
+                $level,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr, $format:tt) => {
+        {
+            $crate::LoggingTimer::with_start_message(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                Some(format!($format)),
+                $level,
                 )
         }
     };
@@ -335,6 +429,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format)),
+                Level::Debug,
                 )
         }
     };
@@ -347,6 +442,20 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
+                Level::Debug,
+                )
+        }
+    };
+
+    ($level:expr; $name:expr, $format:tt, $($arg:expr),*) => {
+        {
+            $crate::LoggingTimer::with_start_message(
+                file!(),
+                module_path!(),
+                line!(),
+                $name,
+                Some(format!($format, $($arg), *)),
+                $level,
                 )
         }
     };
@@ -385,46 +494,4 @@ macro_rules! finish {
     ($timer:expr, $format:tt, $($arg:expr),*) => ({
         $timer.finish(Some(format_args!($format, $($arg), *)))
     })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use log::Level;
-
-    // Just some simple tests to check that the macros still generate
-    // valid code when refactoring.
-
-    #[test]
-    pub fn construction() {
-        let _ = timer!("foo");
-        let _ = timer!("foo", "pat");
-        let _ = timer!("foo", "pat {}", 1);
-
-        let _ = stimer!("foo");
-        let _ = stimer!("foo", "pat");
-        let _ = stimer!("foo", "pat {}", 1);
-    }
-
-    #[test]
-    pub fn executing() {
-        let tmr = timer!("foo");
-        executing!(tmr);
-        executing!(tmr, "pat");
-        executing!(tmr, "pat {}", 1);
-    }
-
-    #[test]
-    pub fn finish() {
-        let tmr = timer!("foo");
-        finish!(tmr);
-        finish!(tmr, "pat");
-        finish!(tmr, "pat {}", 1);
-    }
-
-    #[test]
-    pub fn level() {
-        let tmr = timer!("foo").level(Level::Trace);
-        assert_eq!(tmr.level, Level::Trace);
-    }
 }

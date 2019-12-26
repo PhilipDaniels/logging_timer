@@ -1,8 +1,8 @@
 # Logging Timers for Rust
 
-Provides a couple of simple timers that log messages indicating the elapsed time between
-their creation and dropping. Messages are output via the [log](https://crates.io/crates/log)
-crate.
+This crate provides a couple of simple timers that log messages indicating the elapsed
+time between their creation and dropping. Messages are output via the
+[log](https://crates.io/crates/log) crate.
 
 Timers have names, and the log messages are constructed in such a way that they contain
 the module, filename and line number of the place where the timer was constructed.
@@ -12,15 +12,18 @@ that `timer!` returns a timer that logs a message only when it is dropped, while
 returns a timer that logs a started message as soon as it is created, and a finished
 message when it is dropped.
 
-Example - "Find Files" is the name of the timer:
+In this example "FIND_FILES" is the name of the timer (using all UPPERCASE for the timer
+name is optional but helps make the name stand out in the log)
 
-```rust
+```norun
 use logging_timer::{timer};
 
 fn find_files(dir: PathBuf) -> List<PathBuf> {
-    let _tmr = timer!("Find Files");
+    let _tmr = timer!("FIND_FILES");
     let files = vec![];
+
     // expensive operation here
+
     return files;
 } // _tmr is dropped here and a 'TimerFinished' message is logged
 ```
@@ -32,10 +35,86 @@ In addition, both timer macros accept [format_args!](https://doc.rust-lang.org/s
 style parameters, allowing you to include extra information in the log messages.
 
 ```norun
-let tmr = timer!("Find Files", "Directory = {}", dir);
+let _tmr = timer!("FIND_FILES", "Directory = {}", dir);
 ```
 
-See the module documentation for more examples and an example of the output format.
+# Outputting Intermediate Messages
 
-There is also an example in the examples folder which demonstrates all the different
-usages. To run, do `cargo run --example logging_example`.
+The `executing!` macro allows you to make the timer produce a message before it is dropped.
+You can call it as many times as you want. A pseudocode example:
+
+```norun
+use logging_timer::{timer, executing};
+
+fn find_files(dir: PathBuf) -> List<PathBuf> {
+    let tmr = timer!("FIND_FILES");
+    let files = vec![];
+
+    for dir in sub_dirs(dir) {
+        // expensive operation
+        executing!(tmr, "Processed {}", dir);
+    }
+
+    return files;
+} // tmr is dropped here and a 'TimerFinished' message is logged
+```
+
+# Controlling the Final Message
+
+The `finish!` macro also makes the timer log a message, but it also has the side
+effect of suppressing the normal drop message.  `finish!` is useful when you want the final
+message to include some information that you did not have access to until the calculation had
+finished.
+
+```norun
+use logging_timer::{timer, executing, finish};
+
+fn find_files(dir: PathBuf) -> List<PathBuf> {
+    let tmr = timer!("FIND_FILES");
+    let files = vec![];
+
+    finish!(tmr, "Found {} files", files.len());
+    return files;
+} // tmr is dropped here but no message is produced.
+```
+
+# Setting the log level
+
+By default both `timer` and `stimer` log at `Debug` level. An optional first parameter to
+these macros allows you to set the log level. **To aid parsing of the macro arguments this
+first parameter is terminated by a semi-colon.** For example:
+
+```norun
+let tmr1 = timer!(Level::Warn; "TIMER_AT_WARN");
+let tmr2 = stimer!(Level::Info; "TIMER_AT_INFO");
+```
+# Example of Timer Output
+
+The overall format will depend on how you customize the output format of the log crate, but as an illustrative example:
+
+```text
+2019-05-30T21:41:41.847982550Z DEBUG [TimerStarting] [dnscan/src/main.rs/63] DIRECTORY_ANALYSIS
+2019-05-30T21:41:41.868690703Z INFO [dnlib::configuration] [dnlib/src/configuration.rs/116] Loaded configuration from "/home/phil/.dnscan/.dnscan.json"
+2019-05-30T21:41:41.897609281Z DEBUG [TimerFinished] [dnlib/src/io.rs/67] FIND_FILES, Elapsed=28.835275ms, Dir="/home/phil/mydotnetprojects", NumSolutions=1 NumCsproj=45, NumOtherFiles=12
+2019-05-30T21:41:41.955140835Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/93] LOAD_SOLUTIONS, Elapsed=57.451736ms
+2019-05-30T21:41:42.136762196Z DEBUG [TimerFinished] [dnlib/src/analysis.rs/108] LOAD_PROJECTS, Elapsed=181.563223ms, Found 43 linked projects and 2 orphaned projects
+2019-05-30T21:41:42.136998556Z DEBUG [TimerStarting] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH
+2019-05-30T21:41:42.143072972Z DEBUG [TimerExecuting] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH, Elapsed=6.075205ms, Individual graphs done
+2019-05-30T21:41:42.149218039Z DEBUG [TimerFinished] [dnscan/src/main.rs/87] CALCULATE_PROJECT_GRAPH, Elapsed=12.219438ms, Found 19 redundant project relationships
+2019-05-30T21:41:42.165724712Z DEBUG [TimerFinished] [dnscan/src/main.rs/108] WRITE_OUTPUT_FILES, Elapsed=16.459312ms
+2019-05-30T21:41:42.166445Z INFO [TimerFinished] [dnscan/src/main.rs/63] DIRECTORY_ANALYSIS, Elapsed=318.48581ms
+```
+
+Here the `[Timer*]` blocks are the `target` field from log's [Record](https://docs.rs/log/0.4.6/log/struct.Record.html)
+struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
+instantiated. The module is also set, but is not shown in these examples.
+
+# Examples
+
+There is also an example program in the examples folder which demonstrates all the
+different usages. To run, clone the repository and do
+`cargo run --example logging_demo`.
+
+# History
+
+See the [CHANGELOG.md](CHANGELOG).

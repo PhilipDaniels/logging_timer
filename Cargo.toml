@@ -6,9 +6,9 @@ edition = "2018"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/PhilipDaniels/logging_timer"
-description = "A simple timer that logs the elapsed time when dropped"
+description = "Simple timers that log the elapsed time when dropped"
 categories = ["development-tools::debugging"]
-keywords = ["logging", "timer"]
+keywords = ["logging", "log", "timer", "execution", "speed", "measurement"]
 documentation = "https://docs.rs/logging_timer/"
 
 [dependencies]
