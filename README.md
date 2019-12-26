@@ -109,11 +109,21 @@ Here the `[Timer*]` blocks are the `target` field from log's [Record](https://do
 struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
 instantiated. The module is also set, but is not shown in these examples.
 
-# Examples
+# Code Examples
 
 There is also an example program in the examples folder which demonstrates all the
-different usages. To run, clone the repository and do
-`cargo run --example logging_demo`.
+different usages. To run, clone the repository and in Linux do
+
+```sh
+RUST_LOG=debug cargo run --example logging_demo
+```
+
+If you're on Windows, in PowerShell you can do
+
+```ps
+$env:RUST_LOG="debug"
+cargo run --example logging_demo
+```
 
 # History
 
