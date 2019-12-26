@@ -232,10 +232,10 @@ impl<'name> LoggingTimer<'name> {
             (TimerTarget::Starting, None, Some(args))       => self.log_record(target, format_args!("{}, {}", self.name, args)),
             (TimerTarget::Starting, None, None)             => self.log_record(target, format_args!("{}", self.name)),
 
-            (_, Some(info), Some(args)) => self.log_record(target, format_args!("Elapsed={:?}, {}, {}, {}", self.elapsed(), self.name, info, args)),
-            (_, Some(info), None)       => self.log_record(target, format_args!("Elapsed={:?}, {}, {}", self.elapsed(), self.name, info)),
-            (_, None, Some(args))       => self.log_record(target, format_args!("Elapsed={:?}, {}, {}", self.elapsed(), self.name, args)),
-            (_, None, None)             => self.log_record(target, format_args!("Elapsed={:?}, {}", self.elapsed(), self.name)),
+            (_, Some(info), Some(args)) => self.log_record(target, format_args!("{}, Elapsed={:?}, {}, {}", self.name, self.elapsed(), info, args)),
+            (_, Some(info), None)       => self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), info)),
+            (_, None, Some(args))       => self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), args)),
+            (_, None, None)             => self.log_record(target, format_args!("{}, Elapsed={:?}", self.name, self.elapsed())),
         };
     }
 

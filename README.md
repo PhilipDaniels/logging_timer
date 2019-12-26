@@ -36,3 +36,6 @@ let tmr = timer!("Find Files", "Directory = {}", dir);
 ```
 
 See the module documentation for more examples and an example of the output format.
+
+There is also an example in the examples folder which demonstrates all the different
+usages. To run, do `cargo run --example logging_example`.

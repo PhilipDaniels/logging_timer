@@ -1,6 +1,6 @@
 [package]
 name = "logging_timer"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Philip Daniels <Philip.Daniels1971@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -13,3 +13,7 @@ documentation = "https://docs.rs/logging_timer/"
 
 [dependencies]
 log = "0.4"
+
+[dev-dependencies]
+env_logger = "0.7"
+chrono = { version = "0.4", features = ["serde"] }
