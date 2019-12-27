@@ -16,7 +16,9 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
+
     let _main_tmr = stimer!(Level::Error; "MAIN");
+    let x = Some(_main_tmr);
 
     // For info only.
     // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
@@ -27,15 +29,13 @@ fn main() {
     // println!("Size(_main_tmr.start_time)  = {}", std::mem::size_of_val(&_main_tmr.start_time));
     // println!("Size(_main_tmr.name)        = {}", std::mem::size_of_val(&_main_tmr.name));
     // println!("Size(_main_tmr.extra_info)  = {}", std::mem::size_of_val(&_main_tmr.extra_info));
-    // println!("Size(_main_tmr)             = {}", std::mem::size_of_val(&_main_tmr));
+    //println!("Size(_main_tmr)             = {}", std::mem::size_of_val(&_main_tmr));
+    //println!("Size(x)             = {}", std::mem::size_of_val(&x));
 
-    // // Run a lot of timers for performance comparisons.
-    // for _ in 0..100_000_000_0 {
-    //     if log::log_enabled!(log::Level::Debug) {
-    //         let _tmr = stimer!("TEMP");
-    //     }
-    // }
-
+    // Run a lot of timers for performance comparisons.
+    for _ in 0..100_000_000 {
+        let _tmr = stimer!("TEMP");
+    }
 
     timer_with_name_only();
     println!("");

@@ -128,9 +128,12 @@ use std::time::Instant;
  *   extra_info  = 24
  *
  *   TOTAL       = 104
+ *
+ * Wrapping in an Option<T> so that we can avoid most computation if log_enabled!(level)
+ * returns false does not increase the size of the value at all. Rust is cool :-)
  */
 
-/// When this struct is dropped, it logs a message stating its name and how long
+ /// When this struct is dropped, it logs a message stating its name and how long
 /// the execution time was. Can be used to time functions or other critical areas.
 pub struct LoggingTimer<'name> {
     /// The log level. Defaults to Debug.
@@ -164,16 +167,20 @@ impl<'name> LoggingTimer<'name> {
         name: &'name str,
         extra_info: Option<String>,
         level: log::Level,
-    ) -> Self {
-        LoggingTimer {
-            level: level,
-            start_time: Instant::now(),
-            file: file,
-            module_path: module_path,
-            line: line,
-            name: name,
-            finished: AtomicBool::new(false),
-            extra_info: extra_info,
+    ) -> Option<Self> {
+        if log::log_enabled!(level) {
+            Some(LoggingTimer {
+                level: level,
+                start_time: Instant::now(),
+                file: file,
+                module_path: module_path,
+                line: line,
+                name: name,
+                finished: AtomicBool::new(false),
+                extra_info: extra_info
+            })
+        } else {
+            None
         }
     }
 
@@ -186,10 +193,14 @@ impl<'name> LoggingTimer<'name> {
         name: &'name str,
         extra_info: Option<String>,
         level: log::Level,
-    ) -> Self {
-        let tmr = Self::new(file, module_path, line, name, extra_info, level);
-        tmr.log_impl(TimerTarget::Starting, None);
-        tmr
+    ) -> Option<Self> {
+        if log::log_enabled!(level) {
+            let tmr = Self::new(file, module_path, line, name, extra_info, level).unwrap();
+            tmr.log_impl(TimerTarget::Starting, None);
+            Some(tmr)
+        } else {
+            None
+        }
     }
 
     /// Returns how long the timer has been running for.
@@ -477,15 +488,21 @@ macro_rules! stimer {
 #[macro_export]
 macro_rules! executing {
     ($timer:expr) => ({
-        $timer.executing(None)
+        if let Some(ref tmr) = $timer {
+            tmr.executing(None);
+        }
     });
 
     ($timer:expr, $format:tt) => ({
-        $timer.executing(Some(format_args!($format)))
+        if let Some(ref tmr) = $timer {
+            tmr.executing(Some(format_args!($format)))
+        }
     });
 
     ($timer:expr, $format:tt, $($arg:expr),*) => ({
-        $timer.executing(Some(format_args!($format, $($arg), *)))
+        if let Some(ref tmr) = $timer {
+            tmr.executing(Some(format_args!($format, $($arg), *)))
+        }
     })
 }
 
@@ -495,14 +512,20 @@ macro_rules! executing {
 #[macro_export]
 macro_rules! finish {
     ($timer:expr) => ({
-        $timer.finish(None)
+        if let Some(ref tmr) = $timer {
+            tmr.finish(None)
+        }
     });
 
     ($timer:expr, $format:tt) => ({
-        $timer.finish(Some(format_args!($format)))
+        if let Some(ref tmr) = $timer {
+            tmr.finish(Some(format_args!($format)))
+        }
     });
 
     ($timer:expr, $format:tt, $($arg:expr),*) => ({
-        $timer.finish(Some(format_args!($format, $($arg), *)))
+        if let Some(ref tmr) = $timer {
+            tmr.finish(Some(format_args!($format, $($arg), *)))
+        }
     })
 }
