@@ -1,0 +1,5 @@
+# This is what the Rust compiler team uses.
+version = "Two"
+use_small_heuristics = "Max"
+merge_derives = false
+max_width = 100

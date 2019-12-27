@@ -111,17 +111,30 @@
 //! struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
 //! instantiated. The module is also set, but is not shown in these examples.
 
-
-use log::{log_enabled, Level, RecordBuilder};
+use log;
 use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
+
+/*
+ * Sizes in bytes on 64bit Linux:
+ *   level       =  8
+ *   file        = 16
+ *   module_path = 16
+ *   line        =  4
+ *   finished    =  1
+ *   start_time  = 16
+ *   name        = 16
+ *   extra_info  = 24
+ *
+ *   TOTAL       = 104
+ */
 
 /// When this struct is dropped, it logs a message stating its name and how long
 /// the execution time was. Can be used to time functions or other critical areas.
 pub struct LoggingTimer<'name> {
     /// The log level. Defaults to Debug.
-    level: Level,
+    level: log::Level,
     /// Set by the file!() macro to the name of the file where the timer is instantiated.
     file: &'static str,
     /// Set by the module_path!() macro to the module where the timer is instantiated.
@@ -150,9 +163,8 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
-        level: Level,
-    ) -> Self
-    {
+        level: log::Level,
+    ) -> Self {
         LoggingTimer {
             level: level,
             start_time: Instant::now(),
@@ -173,22 +185,10 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
-        level: Level
-    ) -> Self
-    {
-        let tmr = LoggingTimer {
-            level: level,
-            start_time: Instant::now(),
-            file: file,
-            module_path: module_path,
-            line: line,
-            name: name,
-            finished: AtomicBool::new(false),
-            extra_info: extra_info,
-        };
-
+        level: log::Level,
+    ) -> Self {
+        let tmr = Self::new(file, module_path, line, name, extra_info, level);
         tmr.log_impl(TimerTarget::Starting, None);
-
         tmr
     }
 
@@ -203,8 +203,8 @@ impl<'name> LoggingTimer<'name> {
     /// ```norun
     /// let tmr = timer!("foo").level(Level::Trace);
     /// ```
-    #[deprecated(since="0.3", note="Please use the first parameter to the `timer` or `stimer` macro instead")]
-    pub fn level(mut self, level: Level) -> Self {
+    #[deprecated(since = "0.3", note = "Please use the first parameter to the `timer` or `stimer` macro instead")]
+    pub fn level(mut self, level: log::Level) -> Self {
         self.level = level;
         self
     }
@@ -229,24 +229,38 @@ impl<'name> LoggingTimer<'name> {
     }
 
     fn log_impl(&self, target: TimerTarget, args: Option<fmt::Arguments>) {
-        if !log_enabled!(self.level) { return; }
+        if !log::log_enabled!(self.level) {
+            return;
+        }
 
         match (target, self.extra_info.as_ref(), args) {
-            (TimerTarget::Starting, Some(info), Some(args)) => self.log_record(target, format_args!("{}, {}, {}", self.name, info, args)),
-            (TimerTarget::Starting, Some(info), None)       => self.log_record(target, format_args!("{}, {}",  self.name, info)),
-            (TimerTarget::Starting, None, Some(args))       => self.log_record(target, format_args!("{}, {}", self.name, args)),
-            (TimerTarget::Starting, None, None)             => self.log_record(target, format_args!("{}", self.name)),
+            (TimerTarget::Starting, Some(info), Some(args)) => {
+                self.log_record(target, format_args!("{}, {}, {}", self.name, info, args))
+            }
+            (TimerTarget::Starting, Some(info), None) => {
+                self.log_record(target, format_args!("{}, {}", self.name, info))
+            }
+            (TimerTarget::Starting, None, Some(args)) => {
+                self.log_record(target, format_args!("{}, {}", self.name, args))
+            }
+            (TimerTarget::Starting, None, None) => self.log_record(target, format_args!("{}", self.name)),
 
-            (_, Some(info), Some(args)) => self.log_record(target, format_args!("{}, Elapsed={:?}, {}, {}", self.name, self.elapsed(), info, args)),
-            (_, Some(info), None)       => self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), info)),
-            (_, None, Some(args))       => self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), args)),
-            (_, None, None)             => self.log_record(target, format_args!("{}, Elapsed={:?}", self.name, self.elapsed())),
+            (_, Some(info), Some(args)) => {
+                self.log_record(target, format_args!("{}, Elapsed={:?}, {}, {}", self.name, self.elapsed(), info, args))
+            }
+            (_, Some(info), None) => {
+                self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), info))
+            }
+            (_, None, Some(args)) => {
+                self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), args))
+            }
+            (_, None, None) => self.log_record(target, format_args!("{}, Elapsed={:?}", self.name, self.elapsed())),
         };
     }
 
     fn log_record(&self, target: TimerTarget, args: fmt::Arguments) {
         log::logger().log(
-            &RecordBuilder::new()
+            &log::RecordBuilder::new()
                 .level(self.level)
                 .target(match target {
                     TimerTarget::Starting => "TimerStarting",
@@ -277,23 +291,22 @@ enum TimerTarget {
     Finished,
 }
 
-
 /* TODO: These macro definitions are very verbose, especially the duplication to get
  * 'level' to work, but after much hacking this was the only combination I could
  * get to work. There is probably a way to reduce the duplication, especially
  * by making the 'level' bit optional.
  */
 
- /* TODO: Write proc-macro versions of timer and stimer which can be used to
-  * decorate a function.
-  */
+/* TODO: Write proc-macro versions of timer and stimer which can be used to
+ * decorate a function.
+ */
 
- /* TODO: Can we improve performance by doing less work depending on the enabled
-  * log level? We have taken first steps towards that in `log_impl`, but we might
-  * be able to avoid a lot more work, such as getting the time. Maybe introduce
-  * an enum that has two variants, one the current LoggingTimer, and one 'NoOp',
-  * then determine which to use in the constructors.
-  */
+/* TODO: Can we improve performance by doing less work depending on the enabled
+ * log level? We have taken first steps towards that in `log_impl`, but we might
+ * be able to avoid a lot more work, such as getting the time. Maybe introduce
+ * an enum that has two variants, one the current LoggingTimer, and one 'NoOp',
+ * then determine which to use in the constructors.
+ */
 
 /// Creates a timer that does not log a starting message, only a finished one.
 #[macro_export]

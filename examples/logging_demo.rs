@@ -16,34 +16,56 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
+    let _main_tmr = stimer!(Level::Error; "MAIN");
+
+    // For info only.
+    // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
+    // println!("Size(_main_tmr.file)        = {}", std::mem::size_of_val(&_main_tmr.file));
+    // println!("Size(_main_tmr.module_path) = {}", std::mem::size_of_val(&_main_tmr.module_path));
+    // println!("Size(_main_tmr.line)        = {}", std::mem::size_of_val(&_main_tmr.line));
+    // println!("Size(_main_tmr.finished)    = {}", std::mem::size_of_val(&_main_tmr.finished));
+    // println!("Size(_main_tmr.start_time)  = {}", std::mem::size_of_val(&_main_tmr.start_time));
+    // println!("Size(_main_tmr.name)        = {}", std::mem::size_of_val(&_main_tmr.name));
+    // println!("Size(_main_tmr.extra_info)  = {}", std::mem::size_of_val(&_main_tmr.extra_info));
+    // println!("Size(_main_tmr)             = {}", std::mem::size_of_val(&_main_tmr));
+
+    // // Run a lot of timers for performance comparisons.
+    // for _ in 0..100_000_000_0 {
+    //     if log::log_enabled!(log::Level::Debug) {
+    //         let _tmr = stimer!("TEMP");
+    //     }
+    // }
+
+
     timer_with_name_only();
-
     println!("");
+
     stimer_with_name_only();
-
     println!("");
+
     stimer_with_intermediate_messages_and_final_message();
-
     println!("");
+
     stimer_with_intermediate_messages_and_no_automatic_final_message();
-
     println!("");
+
     timer_with_inline_log_level();
-
     println!("");
+
     stimer_with_inline_log_level();
-
     println!("");
+
     stimer_with_args();
-
     println!("");
+
     executing_with_args();
-
     println!("");
+
     finish_with_args();
-
     println!("");
+
     execute_and_finish_without_args();
+    println!("");
 }
 
 // Section 1. Basic operation of all macros.
@@ -84,7 +106,7 @@ fn stimer_with_inline_log_level() {
 // Section 3. Using format args.
 fn stimer_with_args() {
     let _tmr = stimer!("FORMATTED_S_TIMER", "extra info");
-    let _tmr2 = stimer!("FORMATTED_S_TIMER", "extra info: {} widgets", 5);
+    let _tmr2 = stimer!("FORMATTED_S_TIMER2", "extra info: {} widgets", 5);
 }
 
 fn executing_with_args() {
