@@ -128,3 +128,23 @@ cargo run --example logging_demo
 # History
 
 See the [CHANGELOG](CHANGELOG.md).
+
+# Performance
+
+The `timer` and `stimer` macros return an `Option<LoggingTimer>`. The method
+[log_enabled](https://doc.rust-lang.org/1.1.0/log/macro.log_enabled!.html) is
+used to check whether logging is enabled at the requested level. If logging is
+not enabled then `None` is returned. This avoids most calculation in the case
+where the timer would be a no-op, such that the following loop will create and
+drop 1 million timers in about 4ms on my 2012-era Intel i7.
+
+```rs
+for _ in 0..1_000_000 {
+    let _tmr = stimer!("TEMP");
+}
+```
+
+In comparison, v0.3 of the library would always return a `LoggingTimer`, and
+the loop took ten times longer.
+
+An `Option<LoggingTimer>` is 104 bytes in size on 64-bit Linux.

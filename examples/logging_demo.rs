@@ -16,11 +16,9 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
-
     let _main_tmr = stimer!(Level::Error; "MAIN");
-    let x = Some(_main_tmr);
 
-    // For info only.
+    // For my info only.
     // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
     // println!("Size(_main_tmr.file)        = {}", std::mem::size_of_val(&_main_tmr.file));
     // println!("Size(_main_tmr.module_path) = {}", std::mem::size_of_val(&_main_tmr.module_path));
@@ -32,10 +30,10 @@ fn main() {
     //println!("Size(_main_tmr)             = {}", std::mem::size_of_val(&_main_tmr));
     //println!("Size(x)             = {}", std::mem::size_of_val(&x));
 
-    // Run a lot of timers for performance comparisons.
-    for _ in 0..1_000_000_000 {
-        let _tmr = stimer!("TEMP");
-    }
+    // Create and drop a lot of timers for performance comparisons.
+    // for _ in 0..1_000_000 {
+    //      let _tmr = stimer!("TEMP");
+    // }
 
     timer_with_name_only();
     println!("");

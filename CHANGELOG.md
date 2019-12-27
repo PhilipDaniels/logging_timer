@@ -1,3 +1,12 @@
+# v0.4 - 2019-12-27
+
+## Changed
+
+* The `timer` and `stimer` macros now return an `Option<LoggingTimer>`, resulting
+  in a factor-of-10 speed up in the case where logging is disabled for the
+  specified level.
+
+
 # v0.3 - 2019-12-27
 
 ## Changed
