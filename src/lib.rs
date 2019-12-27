@@ -176,13 +176,9 @@ impl<'name> LoggingTimer<'name> {
         level: Level
     ) -> Self
     {
-        // Determine this before calling log_impl, since logging will take time
-        // itself, i.e. it is overhead that can confuse timings.
-        let start_time = Instant::now();
-
         let tmr = LoggingTimer {
             level: level,
-            start_time: start_time,
+            start_time: Instant::now(),
             file: file,
             module_path: module_path,
             line: line,
@@ -294,7 +290,9 @@ enum TimerTarget {
 
  /* TODO: Can we improve performance by doing less work depending on the enabled
   * log level? We have taken first steps towards that in `log_impl`, but we might
-  * be able to avoid a lot more work, such as getting the time.
+  * be able to avoid a lot more work, such as getting the time. Maybe introduce
+  * an enum that has two variants, one the current LoggingTimer, and one 'NoOp',
+  * then determine which to use in the constructors.
   */
 
 /// Creates a timer that does not log a starting message, only a finished one.
