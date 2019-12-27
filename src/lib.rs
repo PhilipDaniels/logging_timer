@@ -312,13 +312,6 @@ enum TimerTarget {
  * decorate a function.
  */
 
-/* TODO: Can we improve performance by doing less work depending on the enabled
- * log level? We have taken first steps towards that in `log_impl`, but we might
- * be able to avoid a lot more work, such as getting the time. Maybe introduce
- * an enum that has two variants, one the current LoggingTimer, and one 'NoOp',
- * then determine which to use in the constructors.
- */
-
 /// Creates a timer that does not log a starting message, only a finished one.
 #[macro_export]
 macro_rules! timer {
