@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/PhilipDaniels/logging_timer"
 description = "Simple timers that log the elapsed time when dropped"
 categories = ["development-tools::debugging"]
-keywords = ["logging", "log", "timer", "execution", "speed", "measurement"]
+keywords = ["logging", "log", "timer", "execution", "speed"]
 documentation = "https://docs.rs/logging_timer/"
 
 [dependencies]
