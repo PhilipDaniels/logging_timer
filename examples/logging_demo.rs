@@ -33,7 +33,7 @@ fn main() {
     //println!("Size(x)             = {}", std::mem::size_of_val(&x));
 
     // Run a lot of timers for performance comparisons.
-    for _ in 0..100_000_000 {
+    for _ in 0..1_000_000_000 {
         let _tmr = stimer!("TEMP");
     }
 
