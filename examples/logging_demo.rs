@@ -69,7 +69,7 @@ fn main() {
     // println!("");
 }
 
-#[stime(level = "")]
+#[stime("WARN  ")]
 fn test_proc_macro(a: u8) {
     let _tmr = stimer!("PROC_MACRO");
 }

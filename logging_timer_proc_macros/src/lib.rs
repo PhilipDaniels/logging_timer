@@ -2,15 +2,50 @@
 extern crate quote;
 #[macro_use]
 extern crate syn;
-extern crate darling;
 extern crate proc_macro;
-use darling::FromMeta;
-use log;
 
-#[derive(Debug, FromMeta)]
-struct MacroArgs {
-    #[darling(default)]
-    level: Option<String>,
+use proc_macro::TokenTree;
+
+// log::LogLevel can be Error, Warn, Info, Debug, Trace.
+// Debug is the default if nothing is specified.
+// We also allow 'Never' to mean disable timer instrumentation
+// altogether. Any casing is allowed.
+fn get_log_level_as_string(metadata: proc_macro::TokenStream) -> String {
+    const ERR_MSG: &str = "Invalid input: pass a single string literal as the log level, or omit it to default to 'Debug'";
+
+    // println!("**** metadata = {:?}", metadata);
+    if metadata.is_empty() {
+        return "debug".to_string();
+    }
+
+    // We expect 1 string literal.
+    let mut i = metadata.into_iter();
+    let first_item: TokenTree = i.next().unwrap();
+
+    if i.next().is_some() {
+        panic!(ERR_MSG);
+    }
+
+    // println!("**** first_item = {:?}", first_item);
+
+    let log_level = match first_item {
+        TokenTree::Literal(literal) => literal.to_string(),
+        _ => panic!(ERR_MSG),
+    };
+
+    // It comes out with an extra set of double quotes!
+    let mut log_level = log_level.trim().trim_matches('"').trim().to_string();
+    // println!("**** log_level = {:?}", log_level);
+
+    if log_level.is_empty() {
+        // If the user specified an empty string, we catch that here.
+        log_level += "debug";
+    } else {
+        // Lowercase simplifies matching later.
+        log_level.make_ascii_lowercase();
+    }
+
+    log_level
 }
 
 #[proc_macro_attribute]
@@ -18,18 +53,8 @@ pub fn stime(
     metadata: proc_macro::TokenStream,
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
-    let attr_args = parse_macro_input!(metadata as syn::AttributeArgs);
-    let args: MacroArgs = match MacroArgs::from_list(&attr_args) {
-        Ok(v) => v,
-        Err(e) => {
-            return e.write_errors().into();
-        }
-    };
+    let mut level = get_log_level_as_string(metadata);
 
-    // log::LogLevel can be Error, Warn, Info, Debug, Trace.
-    // We also allow 'Never' to mean disable timer instrumentation
-    // altogether.
-    let mut level = args.level.unwrap_or("debug".to_string());
     if level != "never" {
         let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
         let visibility = input_fn.vis;
@@ -50,7 +75,7 @@ pub fn stime(
             "info" => quote! { log::Level::Info  },
             "debug" => quote! { log::Level::Debug  },
             "trace" => quote! { log::Level::Trace  },
-            _ => panic!("Unrecognized log level: {}", level)
+            _ => panic!("Unrecognized log level: {}", level),
         };
 
         (quote!(

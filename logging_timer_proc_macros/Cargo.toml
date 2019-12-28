@@ -14,7 +14,6 @@ proc-macro = true
 log = "0.4"
 quote = "0.6"
 proc-macro2 = "0.4"
-darling = "0.9.0"
 
 [dependencies.syn]
 version = "0.15.42"
