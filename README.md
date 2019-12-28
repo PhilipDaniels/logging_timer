@@ -7,15 +7,40 @@ time between their creation and dropping. Messages are output via the
 Timers have names, and the log messages are constructed in such a way that they contain
 the module, filename and line number of the place where the timer was constructed.
 
-Timers are usually created using the `timer!` or `stimer!` macros. The difference is
-that `timer!` returns a timer that logs a message only when it is dropped, while `stimer!`
-returns a timer that logs a started message as soon as it is created, and a finished
-message when it is dropped.
+
+# Using the Timer Attributes
+
+The simplest way to get started is to use one of the two attributes `time` or `stime` to
+instrument a function, the name of the function is used as the name of the timer:
+
+```rs
+use logging_timer::{time, stime};
+#[time]
+fn find_files(dir: PathBuf) -> Vec<PathBuf> {
+    let files = vec![];
+    // expensive operation here
+    return files;
+} // TimerFinished' message is logged here
+```
+
+Both attributes accept an optional string specifying the log level, which defaults
+to 'debug', e.g. `#[time("info")]`.
+
+
+# Using the Inline Timers
+
+More flexibility, including logging extra information, is provided by the two function-like
+macro forms, `timer!` and `stimer!`. The difference is that `timer!` returns a timer that
+logs a message only when it is dropped, while `stimer!` returns a timer that logs a started
+message as soon as it is created, and a finished message when it is dropped. There are also
+two corresponding proc-macros called `time` and `stimer` which can be used to instrument
+functions with a timer.
 
 In this example "FIND_FILES" is the name of the timer (using all UPPERCASE for the timer
 name is optional but helps make the name stand out in the log)
 
-```norun
+
+```rs
 use logging_timer::{timer};
 
 fn find_files(dir: PathBuf) -> Vec<PathBuf> {
@@ -34,16 +59,17 @@ well, giving you a pair of 'bracketing' log messages.
 In addition, both timer macros accept [format_args!](https://doc.rust-lang.org/std/macro.format_args.html)
 style parameters, allowing you to include extra information in the log messages.
 
-```norun
+```rs
 let _tmr = timer!("FIND_FILES", "Directory = {}", dir);
 ```
+
 
 # Outputting Intermediate Messages
 
 The `executing!` macro allows you to make the timer produce a message before it is dropped.
 You can call it as many times as you want. A pseudocode example:
 
-```norun
+```rs
 use logging_timer::{timer, executing};
 
 fn find_files(dir: PathBuf) -> Vec<PathBuf> {
@@ -59,6 +85,7 @@ fn find_files(dir: PathBuf) -> Vec<PathBuf> {
 } // tmr is dropped here and a 'TimerFinished' message is logged
 ```
 
+
 # Controlling the Final Message
 
 The `finish!` macro also makes the timer log a message, but it also has the side
@@ -66,7 +93,7 @@ effect of suppressing the normal drop message.  `finish!` is useful when you wan
 message to include some information that you did not have access to until the calculation had
 finished.
 
-```norun
+```rs
 use logging_timer::{timer, executing, finish};
 
 fn find_files(dir: PathBuf) -> Vec<PathBuf> {
@@ -84,7 +111,7 @@ By default both `timer` and `stimer` log at `Debug` level. An optional first par
 these macros allows you to set the log level. **To aid parsing of the macro arguments this
 first parameter is terminated by a semi-colon.** For example:
 
-```norun
+```rs
 let tmr1 = timer!(Level::Warn; "TIMER_AT_WARN");
 let tmr2 = stimer!(Level::Info; "TIMER_AT_INFO");
 ```

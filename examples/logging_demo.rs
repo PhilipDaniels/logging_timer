@@ -73,7 +73,7 @@ fn main() {
 }
 
 // Section 0. The attribute-based timers.
-#[time()]
+#[time]
 fn test_time_macro() {}
 
 #[stime("warn")]

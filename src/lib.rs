@@ -5,10 +5,35 @@
 //! Timers have names, and the log messages are constructed in such a way that they contain
 //! the module, filename and line number of the place where the timer was constructed.
 //!
-//! Timers are usually created using the `timer!` or `stimer!` macros. The difference is
-//! that `timer!` returns a timer that logs a message only when it is dropped, while `stimer!`
-//! returns a timer that logs a started message as soon as it is created, and a finished
-//! message when it is dropped.
+//! # Using the Timer Attributes
+//!
+//! The simplest way to get started is to use one of the two attributes `time` or `stime` to
+//! instrument a function, the name of the function is used as the name of the timer:
+//!
+//! ```norun
+//! use logging_timer::{time, stime};
+//!
+//! #[time]
+//! fn find_files(dir: PathBuf) -> Vec<PathBuf> {
+//!     let files = vec![];
+//!
+//!     // expensive operation here
+//!
+//!     return files;
+//! } // TimerFinished' message is logged here
+//! ```
+//!
+//! Both attributes accept an optional string specifying the log level, which defaults
+//! to 'debug', e.g. `#[time("info")]`.
+//!
+//! # Using the Inline Timers
+//!
+//! More flexibility, including logging extra information, is provided by the two function-like
+//! macro forms, `timer!` and `stimer!`. The difference is that `timer!` returns a timer that
+//! logs a message only when it is dropped, while `stimer!` returns a timer that logs a started
+//! message as soon as it is created, and a finished message when it is dropped. There are also
+//! two corresponding proc-macros called `time` and `stimer` which can be used to instrument
+//! functions with a timer.
 //!
 //! In this example "FIND_FILES" is the name of the timer (using all UPPERCASE for the timer
 //! name is optional but helps make the name stand out in the log)
