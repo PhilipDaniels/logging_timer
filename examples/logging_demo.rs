@@ -3,6 +3,7 @@ use env_logger::Builder;
 use log::Level;
 use logging_timer::{executing, finish, stimer, timer};
 use std::io::Write;
+use logging_timer_proc_macros::stime as stime;
 
 /// Demonstrates the various timer macros.
 ///
@@ -16,7 +17,7 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
-    let _main_tmr = stimer!(Level::Error; "MAIN");
+    //let _main_tmr = stimer!(Level::Error; "MAIN");
 
     // For my info only.
     // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
@@ -35,35 +36,42 @@ fn main() {
     //      let _tmr = stimer!("TEMP");
     // }
 
-    timer_with_name_only();
-    println!("");
+    test_proc_macro(12);
 
-    stimer_with_name_only();
-    println!("");
+    // timer_with_name_only();
+    // println!("");
 
-    stimer_with_intermediate_messages_and_final_message();
-    println!("");
+    // stimer_with_name_only();
+    // println!("");
 
-    stimer_with_intermediate_messages_and_no_automatic_final_message();
-    println!("");
+    // stimer_with_intermediate_messages_and_final_message();
+    // println!("");
 
-    timer_with_inline_log_level();
-    println!("");
+    // stimer_with_intermediate_messages_and_no_automatic_final_message();
+    // println!("");
 
-    stimer_with_inline_log_level();
-    println!("");
+    // timer_with_inline_log_level();
+    // println!("");
 
-    stimer_with_args();
-    println!("");
+    // stimer_with_inline_log_level();
+    // println!("");
 
-    executing_with_args();
-    println!("");
+    // stimer_with_args();
+    // println!("");
 
-    finish_with_args();
-    println!("");
+    // executing_with_args();
+    // println!("");
 
-    execute_and_finish_without_args();
-    println!("");
+    // finish_with_args();
+    // println!("");
+
+    // execute_and_finish_without_args();
+    // println!("");
+}
+
+#[stime]
+fn test_proc_macro(a: u8) {
+    let _tmr = stimer!("PROC_MACRO");
 }
 
 // Section 1. Basic operation of all macros.
