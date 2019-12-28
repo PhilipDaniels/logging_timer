@@ -116,6 +116,10 @@ use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
 
+// Proc-macros have to be defined in their own lib crate (for now).
+// Re-export them so that users only have to care about this one.
+pub use logging_timer_proc_macros::{time, stime};
+
 /*
  * Sizes in bytes on 64bit Linux:
  *   level       =  8

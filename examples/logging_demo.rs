@@ -1,8 +1,7 @@
 use chrono::{DateTime, Utc};
 use env_logger::Builder;
 use log::Level;
-use logging_timer::{executing, finish, stimer, timer};
-use logging_timer_proc_macros::{stime, time};
+use logging_timer::{executing, finish, stime, stimer, time, timer};
 use std::io::Write;
 
 /// Demonstrates the various timer macros.
