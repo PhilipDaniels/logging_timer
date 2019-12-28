@@ -1,3 +1,11 @@
+# v0.5 - 2019-12-28
+
+## Added
+
+* Two new proc-macros, `time` and `stimer`, which can be used to instrument a
+  function with a timer of the appropriate kind.
+
+
 # v0.4 - 2019-12-27
 
 ## Changed

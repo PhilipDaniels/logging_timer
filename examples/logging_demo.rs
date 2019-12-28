@@ -16,7 +16,7 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
-    //let _main_tmr = stimer!(Level::Error; "MAIN");
+    let _main_tmr = stimer!(Level::Error; "MAIN");
 
     // For my info only.
     // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
