@@ -2,7 +2,7 @@
 
 ## Added
 
-* Two new proc-macros, `time` and `stimer`, which can be used to instrument a
+* Two new proc-macros, `time` and `stime`, which can be used to instrument a
   function with a timer of the appropriate kind.
 
 
