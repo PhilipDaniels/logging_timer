@@ -2,8 +2,8 @@ use chrono::{DateTime, Utc};
 use env_logger::Builder;
 use log::Level;
 use logging_timer::{executing, finish, stimer, timer};
+use logging_timer_proc_macros::{stime, time};
 use std::io::Write;
-use logging_timer_proc_macros::stime;
 
 /// Demonstrates the various timer macros.
 ///
@@ -36,43 +36,49 @@ fn main() {
     //      let _tmr = stimer!("TEMP");
     // }
 
-    test_proc_macro(12);
+    test_time_macro();
+    println!("");
 
-    // timer_with_name_only();
-    // println!("");
+    test_stime_macro();
+    println!("");
 
-    // stimer_with_name_only();
-    // println!("");
+    timer_with_name_only();
+    println!("");
 
-    // stimer_with_intermediate_messages_and_final_message();
-    // println!("");
+    stimer_with_name_only();
+    println!("");
 
-    // stimer_with_intermediate_messages_and_no_automatic_final_message();
-    // println!("");
+    stimer_with_intermediate_messages_and_final_message();
+    println!("");
 
-    // timer_with_inline_log_level();
-    // println!("");
+    stimer_with_intermediate_messages_and_no_automatic_final_message();
+    println!("");
 
-    // stimer_with_inline_log_level();
-    // println!("");
+    timer_with_inline_log_level();
+    println!("");
 
-    // stimer_with_args();
-    // println!("");
+    stimer_with_inline_log_level();
+    println!("");
 
-    // executing_with_args();
-    // println!("");
+    stimer_with_args();
+    println!("");
 
-    // finish_with_args();
-    // println!("");
+    executing_with_args();
+    println!("");
 
-    // execute_and_finish_without_args();
-    // println!("");
+    finish_with_args();
+    println!("");
+
+    execute_and_finish_without_args();
+    println!("");
 }
 
-#[stime("WARN  ")]
-fn test_proc_macro(a: u8) {
-    let _tmr = stimer!("PROC_MACRO");
-}
+// Section 0. The attribute-based timers.
+#[time()]
+fn test_time_macro() {}
+
+#[stime("warn")]
+fn test_stime_macro() {}
 
 // Section 1. Basic operation of all macros.
 fn timer_with_name_only() {

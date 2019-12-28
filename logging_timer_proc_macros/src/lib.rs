@@ -4,8 +4,6 @@ extern crate quote;
 extern crate syn;
 extern crate proc_macro;
 
-use proc_macro::TokenTree;
-
 // log::LogLevel can be Error, Warn, Info, Debug, Trace.
 // Debug is the default if nothing is specified.
 // We also allow 'Never' to mean disable timer instrumentation
@@ -20,7 +18,7 @@ fn get_log_level_as_string(metadata: proc_macro::TokenStream) -> String {
 
     // We expect 1 string literal.
     let mut i = metadata.into_iter();
-    let first_item: TokenTree = i.next().unwrap();
+    let first_item: proc_macro::TokenTree = i.next().unwrap();
 
     if i.next().is_some() {
         panic!(ERR_MSG);
@@ -29,7 +27,7 @@ fn get_log_level_as_string(metadata: proc_macro::TokenStream) -> String {
     // println!("**** first_item = {:?}", first_item);
 
     let log_level = match first_item {
-        TokenTree::Literal(literal) => literal.to_string(),
+        proc_macro::TokenTree::Literal(literal) => literal.to_string(),
         _ => panic!(ERR_MSG),
     };
 
@@ -48,6 +46,65 @@ fn get_log_level_as_string(metadata: proc_macro::TokenStream) -> String {
     log_level
 }
 
+/// Instruments the function with a `timer!`, which logs a message at the end of execution
+/// including the elapsted time. The attribute accepts a single
+/// optional argument to specify the log level. The levels are the same as those used
+/// by the `log` crate (error, warn, info, debug and trace) and defaults to "debug".
+/// Example:  `#[time("info")]`. You can also specify "never" to
+/// completely disable the instrumentation at compile time.
+#[proc_macro_attribute]
+pub fn time(
+    metadata: proc_macro::TokenStream,
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let mut level = get_log_level_as_string(metadata);
+
+    if level != "never" {
+        let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
+        let visibility = input_fn.vis;
+        let ident = input_fn.ident;
+        let inputs = input_fn.decl.inputs;
+        let output = input_fn.decl.output;
+        let generics = &input_fn.decl.generics;
+        let where_clause = &input_fn.decl.generics.where_clause;
+        let block = input_fn.block;
+
+        let timer_name = format!("{}()", ident);
+
+        level.make_ascii_lowercase();
+
+        let log_level = match level.as_str() {
+            "error" => quote! { log::Level::Error },
+            "warn" => quote! { log::Level::Warn },
+            "info" => quote! { log::Level::Info  },
+            "debug" => quote! { log::Level::Debug  },
+            "trace" => quote! { log::Level::Trace  },
+            _ => panic!("Unrecognized log level: {}", level),
+        };
+
+        (quote!(
+            #visibility fn #ident #generics (#inputs) #output #where_clause {
+                let _tmr = timer!(#log_level; #timer_name);
+                let f = || { #block };
+                let r = f();
+                r
+            }
+        ))
+        .into()
+    } else {
+        proc_macro::TokenStream::from(input).into()
+    }
+}
+
+// TODO: Get rid of this copy-paste. The only difference is the timer type.
+
+
+/// Instruments the function with an `stimer!`, which logs a message at the start of execution
+/// and at the end including the elapsted time. The attribute accepts a single
+/// optional argument to specify the log level. The levels are the same as those used
+/// by the `log` crate (error, warn, info, debug and trace) and defaults to "debug".
+/// Example:  `#[stime("info")]`. You can also specify "never" to
+/// completely disable the instrumentation at compile time.
 #[proc_macro_attribute]
 pub fn stime(
     metadata: proc_macro::TokenStream,
@@ -80,7 +137,7 @@ pub fn stime(
 
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
-                let _tmr = timer!(#log_level; #timer_name);
+                let _tmr = stimer!(#log_level; #timer_name);
                 let f = || { #block };
                 let r = f();
                 r
