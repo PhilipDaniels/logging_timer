@@ -15,6 +15,7 @@ instrument a function, the name of the function is used as the name of the timer
 
 ```rs
 use logging_timer::{time, stime};
+
 #[time]
 fn find_files(dir: PathBuf) -> Vec<PathBuf> {
     let files = vec![];
