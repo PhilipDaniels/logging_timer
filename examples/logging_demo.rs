@@ -3,7 +3,7 @@ use env_logger::Builder;
 use log::Level;
 use logging_timer::{executing, finish, stimer, timer};
 use std::io::Write;
-use logging_timer_proc_macros::stime as stime;
+use logging_timer_proc_macros::stime;
 
 /// Demonstrates the various timer macros.
 ///
@@ -69,7 +69,7 @@ fn main() {
     // println!("");
 }
 
-#[stime]
+#[stime(level = "")]
 fn test_proc_macro(a: u8) {
     let _tmr = stimer!("PROC_MACRO");
 }

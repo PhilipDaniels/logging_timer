@@ -5,15 +5,12 @@ extern crate syn;
 extern crate darling;
 extern crate proc_macro;
 use darling::FromMeta;
+use log;
 
 #[derive(Debug, FromMeta)]
 struct MacroArgs {
     #[darling(default)]
-    print: Option<String>,
-    #[darling(default)]
-    prefix: Option<String>,
-    #[darling(default)]
-    suffix: Option<String>,
+    level: Option<String>,
 }
 
 #[proc_macro_attribute]
@@ -29,11 +26,11 @@ pub fn stime(
         }
     };
 
-    let print_arg = args.print.unwrap_or("always".to_string());
-
-    if print_arg.eq(&"always".to_string())
-        || (print_arg.eq(&"debug".to_string()) && cfg!(debug_assertions))
-    {
+    // log::LogLevel can be Error, Warn, Info, Debug, Trace.
+    // We also allow 'Never' to mean disable timer instrumentation
+    // altogether.
+    let mut level = args.level.unwrap_or("debug".to_string());
+    if level != "never" {
         let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
         let visibility = input_fn.vis;
         let ident = input_fn.ident;
@@ -42,20 +39,23 @@ pub fn stime(
         let generics = &input_fn.decl.generics;
         let where_clause = &input_fn.decl.generics.where_clause;
         let block = input_fn.block;
-        let mut print_str = "".to_string();
-        if let Some(pre) = args.prefix {
-            print_str.push_str(&format!("{}::", pre));
-        }
-        print_str.push_str(&ident.to_string());
-        if let Some(suffix) = args.suffix {
-            print_str.push_str(&format!("::{}", suffix));
-        }
 
         let timer_name = format!("{}()", ident);
 
+        level.make_ascii_lowercase();
+
+        let log_level = match level.as_str() {
+            "error" => quote! { log::Level::Error },
+            "warn" => quote! { log::Level::Warn },
+            "info" => quote! { log::Level::Info  },
+            "debug" => quote! { log::Level::Debug  },
+            "trace" => quote! { log::Level::Trace  },
+            _ => panic!("Unrecognized log level: {}", level)
+        };
+
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
-                let _tmr = timer!(#timer_name);
+                let _tmr = timer!(#log_level; #timer_name);
                 let f = || { #block };
                 let r = f();
                 r
