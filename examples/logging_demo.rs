@@ -3,7 +3,6 @@
 
 use chrono::{DateTime, Utc};
 use env_logger::Builder;
-use log::Level;
 use logging_timer::{executing, finish, stime, stimer, time, timer};
 use std::io::Write;
 
@@ -19,7 +18,7 @@ use std::io::Write;
 fn main() {
     configure_logging();
 
-    let _main_tmr = stimer!(Level::Error; "MAIN");
+    let _main_tmr = stimer!(log::Level::Error; "MAIN");
 
     // For my info only.
     // println!("Size(_main_tmr.level)       = {}", std::mem::size_of_val(&_main_tmr.level));
@@ -56,35 +55,35 @@ fn main() {
     test_stime_macro_with_never();
     println!("");
 
-    // timer_with_name_only();
-    // println!("");
+    timer_with_name_only();
+    println!("");
 
-    // stimer_with_name_only();
-    // println!("");
+    stimer_with_name_only();
+    println!("");
 
-    // stimer_with_intermediate_messages_and_final_message();
-    // println!("");
+    stimer_with_intermediate_messages_and_final_message();
+    println!("");
 
-    // stimer_with_intermediate_messages_and_no_automatic_final_message();
-    // println!("");
+    stimer_with_intermediate_messages_and_no_automatic_final_message();
+    println!("");
 
-    // timer_with_inline_log_level();
-    // println!("");
+    timer_with_inline_log_level();
+    println!("");
 
-    // stimer_with_inline_log_level();
-    // println!("");
+    stimer_with_inline_log_level();
+    println!("");
 
-    // stimer_with_args();
-    // println!("");
+    stimer_with_args();
+    println!("");
 
-    // executing_with_args();
-    // println!("");
+    executing_with_args();
+    println!("");
 
-    // finish_with_args();
-    // println!("");
+    finish_with_args();
+    println!("");
 
-    // execute_and_finish_without_args();
-    // println!("");
+    execute_and_finish_without_args();
+    println!("");
 }
 
 // Section 0. The attribute-based timers.
@@ -132,15 +131,15 @@ fn stimer_with_intermediate_messages_and_no_automatic_final_message() {
 
 // Section 2. Changing the log level.
 fn timer_with_inline_log_level() {
-    let _tmr1 = timer!(Level::Info; "TIMER_AT_INFO", "Got {} widgets", 5);
-    let _tmr2 = timer!(Level::Warn; "TIMER_AT_WARN");
-    let _tmr3 = timer!(Level::Error; "TIMER_AT_ERROR", "more info");
+    let _tmr1 = timer!(log::Level::Info; "TIMER_AT_INFO", "Got {} widgets", 5);
+    let _tmr2 = timer!(log::Level::Warn; "TIMER_AT_WARN");
+    let _tmr3 = timer!(log::Level::Error; "TIMER_AT_ERROR", "more info");
 }
 
 fn stimer_with_inline_log_level() {
-    let _tmr1 = stimer!(Level::Info; "S_TIMER_AT_INFO", "Got {} widgets", 5);
-    let _tmr2 = stimer!(Level::Warn; "S_TIMER_AT_WARN");
-    let _tmr3 = stimer!(Level::Error; "S_TIMER_AT_ERROR", "more info");
+    let _tmr1 = stimer!(log::Level::Info; "S_TIMER_AT_INFO", "Got {} widgets", 5);
+    let _tmr2 = stimer!(log::Level::Warn; "S_TIMER_AT_WARN");
+    let _tmr3 = stimer!(log::Level::Error; "S_TIMER_AT_ERROR", "more info");
 }
 
 // Section 3. Using format args.

@@ -369,7 +369,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 None,
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };
@@ -395,7 +395,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format)),
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };
@@ -421,7 +421,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };
@@ -451,7 +451,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 None,
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };
@@ -490,7 +490,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format)),
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };
@@ -503,7 +503,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
-                Level::Debug,
+                ::log::Level::Debug,
                 )
         }
     };

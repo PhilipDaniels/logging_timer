@@ -1,3 +1,9 @@
+# v0.9.1 - 2019-12-29
+
+## Fixed
+
+* Need to fully qualify the uses of `LogLevel` in `timer!` and `stimer!` macros.
+
 # v0.9 - 2019-12-29
 
 ## Added
