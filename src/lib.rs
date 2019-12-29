@@ -20,11 +20,28 @@
 //!     // expensive operation here
 //!
 //!     return files;
-//! } // TimerFinished' message is logged here
+//! } // 'TimerFinished' message is logged here
 //! ```
 //!
-//! Both attributes accept an optional string specifying the log level, which defaults
-//! to 'debug', e.g. `#[time("info")]`.
+//! Both attributes accept two optional arguments, to specify the log level and a pattern
+//! into which the name of the function will be substituted. The pattern is helpful to
+//! disambiguate functions when you have many in the same module with the same name: `new`
+//! might occur many times on different structs, for example.
+//!
+//! ```norun
+//! #[time]                                 // Use default log level of Debug
+//! #[time("info")]                         // Set custom log level
+//! #[time("info", "FirstStruct::{}")]      // Logs "FirstStruct::new()" at Info
+//! #[time("info", "SecondStruct::{}")]     // Logs "SecondStruct::new()" at Info
+//! #[time("ThirdStruct::{}")]              // Logs "ThirdStruct::new()" at Debug
+//! #[time("never")]                        // Turn off instrumentation at compile time
+//! ```
+//!
+//! Valid values for the log level are error, warn, info, debug and trace. Debug is the default.
+//! You can also specify 'never' to completely disable the instrumentation at compile time.
+//! The log level should appear first but as shown above can be omitted. The macros distinguish
+//! the log level from the pattern by looking for "{}".
+//!
 //!
 //! # Using the Inline Timers
 //!

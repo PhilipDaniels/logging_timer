@@ -1,3 +1,13 @@
+# v1.0 - 2019-12-29
+
+## Added
+
+* Allowed the `time` and `stime` attributes to take two arguments, one
+  specifying the level, and one specifying a pattern in which to substitute
+  the function name. This helps to disambiguate functions when you have
+  many with the same name, which is a tendency in Rust because modules are
+  large compared to say, C#, where every class is in its own file.
+
 # v0.5 - 2019-12-28
 
 ## Added
