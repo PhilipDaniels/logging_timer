@@ -43,6 +43,16 @@ fn main() {
     test_stime_macro();
     println!("");
 
+    let mut x = 3;
+    test_time_macro_with_mut_parameters(&mut x, 12);
+    println!("");
+
+    test_mut_self();
+    println!("");
+
+    test_hygiene();
+    println!("");
+
     test_stime_macro_with_level_and_pattern();
     println!("");
 
@@ -86,9 +96,34 @@ fn main() {
     println!("");
 }
 
+struct Foo {
+    x: i32
+}
+
+impl Foo {
+    // v0.9 of the library had a bug where this would fail to compile.
+    #[stime]
+    fn bar(&mut self) {
+        self.x = 12;
+    }
+}
+
 // Section 0. The attribute-based timers.
 #[time]
 fn test_time_macro() {}
+
+#[time]
+fn test_time_macro_with_mut_parameters(_a: &mut i32, mut _x: i32) {}
+
+fn test_mut_self() {
+    let mut f = Foo { x: 4 };
+    f.bar();
+}
+
+#[time]
+fn test_hygiene() {
+    let _tmr = 3;
+}
 
 #[stime("warn")]
 fn test_stime_macro() {}

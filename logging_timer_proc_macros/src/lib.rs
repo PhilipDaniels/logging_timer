@@ -137,9 +137,7 @@ pub fn time(
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = timer!(#log_level; #timer_name);
-                let f = || { #block };
-                let r = f();
-                r
+                #block
             }
         ))
         .into()
@@ -201,9 +199,7 @@ pub fn stime(
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = stimer!(#log_level; #timer_name);
-                let f = || { #block };
-                let r = f();
-                r
+                #block
             }
         ))
         .into()

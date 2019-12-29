@@ -1,3 +1,9 @@
+# v0.9.2 - 2019-12-29
+
+## Fixed
+
+* The attributes now work on methods that take `&mut self`.
+
 # v0.9.1 - 2019-12-29
 
 ## Fixed
