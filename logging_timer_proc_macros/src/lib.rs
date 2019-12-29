@@ -8,10 +8,14 @@ const DEFAULT_LEVEL: &str = "debug";
 const DEFAULT_NAME_PATTERN: &str = "{}";
 
 fn extract_literal(token_tree: &proc_macro::TokenTree) -> String {
-    match token_tree {
+    let s = match token_tree {
         proc_macro::TokenTree::Literal(literal) => literal.to_string(),
         _ => panic!("Invalid argument. Specify at most two string literal arguments, for log level and name pattern, in that order.")
-    }
+    };
+
+    // String literals seem to come through including their double quotes. Trim them off.
+    let s = s.trim().trim_matches('"').trim().to_string();
+    s
 }
 
 // log::LogLevel can be Error, Warn, Info, Debug, Trace.
@@ -38,13 +42,7 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
         panic!("Specify at most two string literal arguments, for log level and name pattern");
     }
 
-    let first_arg = match &macro_args[0] {
-        proc_macro::TokenTree::Literal(literal) => literal.to_string(),
-        _ => panic!("Invalid first argument. Specify at most two string literal arguments, for log level and name pattern."),
-    };
-
-    // String literals seem to come through including their double quotes. Trim them off.
-    let first_arg = first_arg.trim().trim_matches('"').trim();
+    let first_arg = extract_literal(&macro_args[0]);
 
     if first_arg.contains("{}") && macro_args.len() == 2 {
         panic!("Invalid first argument. Specify the log level as the first argument and the pattern as the second.");
@@ -71,11 +69,7 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
     // that to be a valid log level.
     match first_arg_lower.as_str() {
         "error" | "warn" | "info" | "debug" | "trace" | "never" => {
-            let second_arg = match &macro_args[1] {
-                proc_macro::TokenTree::Literal(literal) => literal.to_string(),
-                _ => panic!("Invalid second argument. Specify at most two string literal arguments, for log level and name pattern.")
-            };
-            let mut second_arg = second_arg.trim().trim_matches('"').trim().to_string();
+            let mut second_arg = extract_literal(&macro_args[1]);
             if second_arg.is_empty() {
                 second_arg += DEFAULT_NAME_PATTERN;
             }
@@ -92,12 +86,26 @@ fn get_timer_name(name_pattern: &str, fn_name: &str) -> String {
     timer_name
 }
 
-/// Instruments the function with a `timer!`, which logs a message at the end of execution
-/// including the elapsted time. The attribute accepts a single
-/// optional argument to specify the log level. The levels are the same as those used
-/// by the `log` crate (error, warn, info, debug and trace) and defaults to "debug".
-/// Example:  `#[time("info")]`. You can also specify "never" to
-/// completely disable the instrumentation at compile time.
+/// Instruments the function with a `timer!`, which logs a message at the end of function
+/// execution stating the elapsed time.
+///
+/// The attribute accepts two string literals as arguments. The first is the log level,
+/// valid values of which are "error", "warn", "info", "debug", "trace" or "never".
+/// The default value is "debug". "never" can be used to temporarily disable instrumentation
+/// of the function without deleting the attribute.
+///
+/// The second argument is the function name pattern. The pattern is helpful to
+/// disambiguate functions when you have many in the same module with the same name: `new`
+/// might occur many times on different structs, for example. In the pattern, "{}" will be
+/// replaced with the name of the function.
+///
+/// Examples:
+///     #[time]                                 // Use default log level of Debug
+///     #[time("info")]                         // Set custom log level
+///     #[time("info", "FirstStruct::{}")]      // Logs "FirstStruct::new()" at Info
+///     #[time("info", "SecondStruct::{}")]     // Logs "SecondStruct::new()" at Info
+///     #[time("ThirdStruct::{}")]              // Logs "ThirdStruct::new()" at Debug
+///     #[time("never")]                        // Turn off instrumentation at compile time
 #[proc_macro_attribute]
 pub fn time(
     metadata: proc_macro::TokenStream,
@@ -142,12 +150,26 @@ pub fn time(
 
 // TODO: Get rid of this copy-paste. The only difference is the timer type.
 
-/// Instruments the function with an `stimer!`, which logs a message at the start of execution
-/// and at the end including the elapsted time. The attribute accepts a single
-/// optional argument to specify the log level. The levels are the same as those used
-/// by the `log` crate (error, warn, info, debug and trace) and defaults to "debug".
-/// Example:  `#[stime("info")]`. You can also specify "never" to
-/// completely disable the instrumentation at compile time.
+/// Instruments the function with an `stimer!`, which logs two messages, one at the start
+/// of the function and one at the end of execution stating the elapsed time.
+///
+/// The attribute accepts two string literals as arguments. The first is the log level,
+/// valid values of which are "error", "warn", "info", "debug", "trace" or "never".
+/// The default value is "debug". "never" can be used to temporarily disable instrumentation
+/// of the function without deleting the attribute.
+///
+/// The second argument is the function name pattern. The pattern is helpful to
+/// disambiguate functions when you have many in the same module with the same name: `new`
+/// might occur many times on different structs, for example. In the pattern, "{}" will be
+/// replaced with the name of the function.
+///
+/// Examples:
+///     #[stime]                                 // Use default log level of Debug
+///     #[stime("info")]                         // Set custom log level
+///     #[stime("info", "FirstStruct::{}")]      // Logs "FirstStruct::new()" at Info
+///     #[stime("info", "SecondStruct::{}")]     // Logs "SecondStruct::new()" at Info
+///     #[stime("ThirdStruct::{}")]              // Logs "ThirdStruct::new()" at Debug
+///     #[stime("never")]                        // Turn off instrumentation at compile time
 #[proc_macro_attribute]
 pub fn stime(
     metadata: proc_macro::TokenStream,

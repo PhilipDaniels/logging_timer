@@ -50,10 +50,11 @@ fn main() {
     test_stime_macro_with_pattern();
     println!("");
 
-    test_stime_macro_with_never();
+    test_stime_macro_with_no_brackets_pattern();
     println!("");
 
-
+    test_stime_macro_with_never();
+    println!("");
 
     // timer_with_name_only();
     // println!("");
@@ -98,6 +99,9 @@ fn test_stime_macro_with_level_and_pattern() {}
 
 #[stime("SecondStruct::{}/blah")]
 fn test_stime_macro_with_pattern() {}
+
+#[stime("NOBRACKETS")]
+fn test_stime_macro_with_no_brackets_pattern() {}
 
 #[stime("never", "ComplexPattern::{}::I Don't Want To Delete Yet")]
 fn test_stime_macro_with_never() {
