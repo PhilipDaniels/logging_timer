@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use chrono::{DateTime, Utc};
 use env_logger::Builder;
 use log::Level;
@@ -41,35 +44,46 @@ fn main() {
     test_stime_macro();
     println!("");
 
-    timer_with_name_only();
+    test_stime_macro_with_level_and_pattern();
     println!("");
 
-    stimer_with_name_only();
+    test_stime_macro_with_pattern();
     println!("");
 
-    stimer_with_intermediate_messages_and_final_message();
+    test_stime_macro_with_never();
     println!("");
 
-    stimer_with_intermediate_messages_and_no_automatic_final_message();
-    println!("");
 
-    timer_with_inline_log_level();
-    println!("");
 
-    stimer_with_inline_log_level();
-    println!("");
+    // timer_with_name_only();
+    // println!("");
 
-    stimer_with_args();
-    println!("");
+    // stimer_with_name_only();
+    // println!("");
 
-    executing_with_args();
-    println!("");
+    // stimer_with_intermediate_messages_and_final_message();
+    // println!("");
 
-    finish_with_args();
-    println!("");
+    // stimer_with_intermediate_messages_and_no_automatic_final_message();
+    // println!("");
 
-    execute_and_finish_without_args();
-    println!("");
+    // timer_with_inline_log_level();
+    // println!("");
+
+    // stimer_with_inline_log_level();
+    // println!("");
+
+    // stimer_with_args();
+    // println!("");
+
+    // executing_with_args();
+    // println!("");
+
+    // finish_with_args();
+    // println!("");
+
+    // execute_and_finish_without_args();
+    // println!("");
 }
 
 // Section 0. The attribute-based timers.
@@ -78,6 +92,17 @@ fn test_time_macro() {}
 
 #[stime("warn")]
 fn test_stime_macro() {}
+
+#[stime("warn", "FirstStruct::{}")]
+fn test_stime_macro_with_level_and_pattern() {}
+
+#[stime("SecondStruct::{}/blah")]
+fn test_stime_macro_with_pattern() {}
+
+#[stime("never", "ComplexPattern::{}::I Don't Want To Delete Yet")]
+fn test_stime_macro_with_never() {
+    // Nothing should be logged
+}
 
 // Section 1. Basic operation of all macros.
 fn timer_with_name_only() {

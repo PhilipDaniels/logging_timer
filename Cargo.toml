@@ -13,8 +13,8 @@ documentation = "https://docs.rs/logging_timer/"
 
 [dependencies]
 log = "0.4"
-#logging_timer_proc_macros = { path = "./logging_timer_proc_macros" }
-logging_timer_proc_macros = "0.5"
+logging_timer_proc_macros = { path = "./logging_timer_proc_macros" }
+# logging_timer_proc_macros = "0.5"
 
 [dev-dependencies]
 env_logger = "0.7"
