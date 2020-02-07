@@ -126,11 +126,11 @@ pub fn time(
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
 
         let log_level = match level.as_str() {
-            "error" => quote! { log::Level::Error },
-            "warn" => quote! { log::Level::Warn },
-            "info" => quote! { log::Level::Info  },
-            "debug" => quote! { log::Level::Debug  },
-            "trace" => quote! { log::Level::Trace  },
+            "error" => quote! { ::log::Level::Error },
+            "warn" => quote! { ::log::Level::Warn },
+            "info" => quote! { ::log::Level::Info  },
+            "debug" => quote! { ::log::Level::Debug  },
+            "trace" => quote! { ::log::Level::Trace  },
             _ => panic!("Unrecognized log level: {}", level),
         };
 
@@ -188,11 +188,11 @@ pub fn stime(
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
 
         let log_level = match level.as_str() {
-            "error" => quote! { log::Level::Error },
-            "warn" => quote! { log::Level::Warn },
-            "info" => quote! { log::Level::Info  },
-            "debug" => quote! { log::Level::Debug  },
-            "trace" => quote! { log::Level::Trace  },
+            "error" => quote! { ::log::Level::Error },
+            "warn" => quote! { ::log::Level::Warn },
+            "info" => quote! { ::log::Level::Info  },
+            "debug" => quote! { ::log::Level::Debug  },
+            "trace" => quote! { ::log::Level::Trace  },
             _ => panic!("Unrecognized log level: {}", level),
         };
 

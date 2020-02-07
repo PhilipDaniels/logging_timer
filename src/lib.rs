@@ -153,7 +153,6 @@
 //! struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
 //! instantiated. The module is also set, but is not shown in these examples.
 
-use log;
 use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
@@ -183,7 +182,7 @@ pub use logging_timer_proc_macros::{time, stime};
 /// the execution time was. Can be used to time functions or other critical areas.
 pub struct LoggingTimer<'name> {
     /// The log level. Defaults to Debug.
-    level: log::Level,
+    level: ::log::Level,
     /// Set by the file!() macro to the name of the file where the timer is instantiated.
     file: &'static str,
     /// Set by the module_path!() macro to the module where the timer is instantiated.
@@ -216,14 +215,14 @@ impl<'name> LoggingTimer<'name> {
     ) -> Option<Self> {
         if log::log_enabled!(level) {
             Some(LoggingTimer {
-                level: level,
+                level,
                 start_time: Instant::now(),
-                file: file,
-                module_path: module_path,
-                line: line,
-                name: name,
+                file,
+                module_path,
+                line,
+                name,
                 finished: AtomicBool::new(false),
-                extra_info: extra_info
+                extra_info
             })
         } else {
             None
@@ -238,9 +237,9 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
-        level: log::Level,
+        level: ::log::Level,
     ) -> Option<Self> {
-        if log::log_enabled!(level) {
+        if ::log::log_enabled!(level) {
             let tmr = Self::new(file, module_path, line, name, extra_info, level).unwrap();
             tmr.log_impl(TimerTarget::Starting, None);
             Some(tmr)
@@ -261,7 +260,7 @@ impl<'name> LoggingTimer<'name> {
     /// let tmr = timer!("foo").level(Level::Trace);
     /// ```
     #[deprecated(since = "0.3", note = "Please use the first parameter to the `timer` or `stimer` macro instead")]
-    pub fn level(mut self, level: log::Level) -> Self {
+    pub fn level(mut self, level: ::log::Level) -> Self {
         self.level = level;
         self
     }
@@ -286,7 +285,7 @@ impl<'name> LoggingTimer<'name> {
     }
 
     fn log_impl(&self, target: TimerTarget, args: Option<fmt::Arguments>) {
-        if !log::log_enabled!(self.level) {
+        if !::log::log_enabled!(self.level) {
             return;
         }
 
@@ -316,7 +315,7 @@ impl<'name> LoggingTimer<'name> {
     }
 
     fn log_record(&self, target: TimerTarget, args: fmt::Arguments) {
-        log::logger().log(
+        ::log::logger().log(
             &log::RecordBuilder::new()
                 .level(self.level)
                 .target(match target {
