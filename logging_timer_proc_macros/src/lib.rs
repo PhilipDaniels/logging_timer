@@ -136,7 +136,7 @@ pub fn time(
 
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
-                let _tmr = timer!(#log_level; #timer_name);
+                let _tmr = ::logging_timer::timer!(#log_level; #timer_name);
                 #block
             }
         ))
@@ -198,7 +198,7 @@ pub fn stime(
 
         (quote!(
             #visibility fn #ident #generics (#inputs) #output #where_clause {
-                let _tmr = stimer!(#log_level; #timer_name);
+                let _tmr = ::logging_timer::stimer!(#log_level; #timer_name);
                 #block
             }
         ))
