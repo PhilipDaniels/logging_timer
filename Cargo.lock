@@ -78,7 +78,7 @@ dependencies = [
 
 [[package]]
 name = "logging_timer"
-version = "0.9.2"
+version = "0.9.2-beta.0"
 dependencies = [
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
