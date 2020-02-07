@@ -1,6 +1,6 @@
 [package]
 name = "logging_timer"
-version = "0.9.3-beta.1"
+version = "0.9.3-beta.2"
 authors = ["Philip Daniels <Philip.Daniels1971@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -14,7 +14,7 @@ documentation = "https://docs.rs/logging_timer/"
 [dependencies]
 log = "0.4"
 # logging_timer_proc_macros = { path = "./logging_timer_proc_macros" }
-logging_timer_proc_macros = "0.9.2"
+logging_timer_proc_macros = "0.9.3-beta.1"
 
 [dev-dependencies]
 env_logger = "0.7"

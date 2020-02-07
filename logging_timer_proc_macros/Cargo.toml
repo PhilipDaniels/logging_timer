@@ -1,6 +1,6 @@
 [package]
 name = "logging_timer_proc_macros"
-version = "0.9.3-beta.1"
+version = "0.9.3-beta.2"
 authors = ["Philip Daniels <Philip.Daniels1971@gmail.com>"]
 edition = "2018"
 license = "MIT"
