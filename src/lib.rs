@@ -48,9 +48,7 @@
 //! More flexibility, including logging extra information, is provided by the two function-like
 //! macro forms, `timer!` and `stimer!`. The difference is that `timer!` returns a timer that
 //! logs a message only when it is dropped, while `stimer!` returns a timer that logs a started
-//! message as soon as it is created, and a finished message when it is dropped. There are also
-//! two corresponding proc-macros called `time` and `stimer` which can be used to instrument
-//! functions with a timer.
+//! message as soon as it is created, and a finished message when it is dropped.
 //!
 //! In this example "FIND_FILES" is the name of the timer (using all UPPERCASE for the timer
 //! name is optional but helps make the name stand out in the log)
@@ -360,6 +358,20 @@ enum TimerTarget {
  */
 
 /// Creates a timer that does not log a starting message, only a finished one.
+///
+/// # Examples
+/// Note that when specifying the log level you must use a semi-colon as a
+/// separator, this is to ensure disambiguous parsing of the macro arguments.
+///
+/// ```norun
+///
+/// use logging_timer::{stime, time, stimer, timer, Level};
+///
+/// let _tmr1 = timer!("FIND_FILES");
+/// let _tmr2 = timer!(Level::Info; "FIND_FILES");
+/// let _tmr3 = timer!("FIND_FILES", "Found {} files", 42);
+/// let _tmr4 = timer!(Level::Trace; "FIND_FILES", "Found {} files", 42);
+/// ```
 #[macro_export]
 macro_rules! timer {
     ($name:expr) => {
@@ -370,7 +382,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 None,
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
@@ -396,7 +408,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format)),
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
@@ -422,7 +434,7 @@ macro_rules! timer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
@@ -442,6 +454,20 @@ macro_rules! timer {
 }
 
 /// Creates a timer that logs a starting mesage and a finished message.
+///
+/// # Examples
+/// Note that when specifying the log level you must use a semi-colon as a
+/// separator, this is to ensure disambiguous parsing of the macro arguments.
+///
+/// ```norun
+///
+/// use logging_timer::{stime, time, stimer, timer, Level};
+///
+/// let _tmr1 = stimer!("FIND_FILES");
+/// let _tmr2 = stimer!(Level::Info; "FIND_FILES");
+/// let _tmr3 = stimer!("FIND_FILES", "Found {} files", 42);
+/// let _tmr4 = stimer!(Level::Trace; "FIND_FILES", "Found {} files", 42);
+/// ```
 #[macro_export]
 macro_rules! stimer {
     ($name:expr) => {
@@ -452,7 +478,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 None,
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
@@ -491,7 +517,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format)),
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
@@ -504,7 +530,7 @@ macro_rules! stimer {
                 line!(),
                 $name,
                 Some(format!($format, $($arg), *)),
-                ::log::Level::Debug,
+                ::logging_timer::Level::Debug,
                 )
         }
     };
