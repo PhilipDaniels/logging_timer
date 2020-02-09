@@ -161,6 +161,12 @@ use std::time::Instant;
 // Re-export them so that users only have to care about this one.
 pub use logging_timer_proc_macros::{time, stime};
 
+// Re-export log level so it can be used from the proc-macros. If we don't have this,
+// then the expanded macro has no way of referring to `::log::Level` unless the caller
+// also adds `log` to his Cargo.toml and includes a using statement. Which we definitely
+// don't want, we want the user to be able to just include logging_timer.
+pub use ::log::Level;
+
 /*
  * Sizes in bytes on 64bit Linux:
  *   level       =  8
@@ -211,9 +217,9 @@ impl<'name> LoggingTimer<'name> {
         line: u32,
         name: &'name str,
         extra_info: Option<String>,
-        level: log::Level,
+        level: ::log::Level,
     ) -> Option<Self> {
-        if log::log_enabled!(level) {
+        if ::log::log_enabled!(level) {
             Some(LoggingTimer {
                 level,
                 start_time: Instant::now(),
@@ -351,10 +357,6 @@ enum TimerTarget {
  * 'level' to work, but after much hacking this was the only combination I could
  * get to work. There is probably a way to reduce the duplication, especially
  * by making the 'level' bit optional.
- */
-
-/* TODO: Write proc-macro versions of timer and stimer which can be used to
- * decorate a function.
  */
 
 /// Creates a timer that does not log a starting message, only a finished one.

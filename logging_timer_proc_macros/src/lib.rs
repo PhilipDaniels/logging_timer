@@ -32,7 +32,6 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
             _ => false,
         })
         .collect();
-    //println!("macro_args = {:#?}", macro_args);
 
     if macro_args.is_empty() {
         return (DEFAULT_LEVEL.to_string(), DEFAULT_NAME_PATTERN.to_string());
@@ -95,9 +94,9 @@ fn get_timer_name(name_pattern: &str, fn_name: &str) -> String {
 /// of the function without deleting the attribute.
 ///
 /// The second argument is the function name pattern. The pattern is helpful to
-/// disambiguate functions when you have many in the same module with the same name: `new`
-/// might occur many times on different structs, for example. In the pattern, "{}" will be
-/// replaced with the name of the function.
+/// disambiguate functions when you have many functions in the same module with the same
+/// name: `new` might occur many times on different structs, for example. In the pattern,
+/// "{}" will be replaced with the name of the function.
 ///
 /// Examples:
 ///     #[time]                                 // Use default log level of Debug
@@ -126,11 +125,11 @@ pub fn time(
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
 
         let log_level = match level.as_str() {
-            "error" => quote! { ::log::Level::Error },
-            "warn" => quote! { ::log::Level::Warn },
-            "info" => quote! { ::log::Level::Info  },
-            "debug" => quote! { ::log::Level::Debug  },
-            "trace" => quote! { ::log::Level::Trace  },
+            "error" => quote! { ::logging_timer::Level::Error },
+            "warn" => quote! { ::logging_timer::Level::Warn },
+            "info" => quote! { ::logging_timer::Level::Info  },
+            "debug" => quote! { ::logging_timer::Level::Debug  },
+            "trace" => quote! { ::logging_timer::Level::Trace  },
             _ => panic!("Unrecognized log level: {}", level),
         };
 
@@ -157,9 +156,9 @@ pub fn time(
 /// of the function without deleting the attribute.
 ///
 /// The second argument is the function name pattern. The pattern is helpful to
-/// disambiguate functions when you have many in the same module with the same name: `new`
-/// might occur many times on different structs, for example. In the pattern, "{}" will be
-/// replaced with the name of the function.
+/// disambiguate functions when you have many functions in the same module with the same
+/// name: `new` might occur many times on different structs, for example. In the pattern,
+/// "{}" will be replaced with the name of the function.
 ///
 /// Examples:
 ///     #[stime]                                 // Use default log level of Debug
@@ -188,11 +187,11 @@ pub fn stime(
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
 
         let log_level = match level.as_str() {
-            "error" => quote! { ::log::Level::Error },
-            "warn" => quote! { ::log::Level::Warn },
-            "info" => quote! { ::log::Level::Info  },
-            "debug" => quote! { ::log::Level::Debug  },
-            "trace" => quote! { ::log::Level::Trace  },
+            "error" => quote! { ::logging_timer::Level::Error },
+            "warn" => quote! { ::logging_timer::Level::Warn },
+            "info" => quote! { ::logging_timer::Level::Info  },
+            "debug" => quote! { ::logging_timer::Level::Debug  },
+            "trace" => quote! { ::logging_timer::Level::Trace  },
             _ => panic!("Unrecognized log level: {}", level),
         };
 
