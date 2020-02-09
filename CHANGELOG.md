@@ -1,14 +1,30 @@
+# v1.0.0 - 2020-02-09
+
+## Fixed
+
+* It was previously not possible to just use `logging_timers` on its own.
+  You also had to add the `log` crate to `Cargo.toml` and add `use`
+  statements for some things. This is now corrected, you can just add
+  `logging_timers` to your `Cargo.toml` and start using the timers.
+
+## Added
+
+* More helpful doc comments for the `time` and `stime` attribute macros.
+
+
 # v0.9.2 - 2019-12-29
 
 ## Fixed
 
 * The attributes now work on methods that take `&mut self`.
 
+
 # v0.9.1 - 2019-12-29
 
 ## Fixed
 
 * Need to fully qualify the uses of `LogLevel` in `timer!` and `stimer!` macros.
+
 
 # v0.9 - 2019-12-29
 
@@ -19,6 +35,7 @@
   the function name. This helps to disambiguate functions when you have
   many with the same name, which is a tendency in Rust because modules are
   large compared to say, C#, where every class is in its own file.
+
 
 # v0.5 - 2019-12-28
 
