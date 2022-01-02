@@ -1,3 +1,12 @@
+# v1.1.0 - 2022-01-02
+
+## Fixed
+
+* Issue https://github.com/PhilipDaniels/logging_timer/issues/2
+  Previously when using the proc macro timers `time` and `stimer`
+  attributes would be stripped from the function. This included doc
+  comments. These attributes are now preserved.
+
 # v1.0.0 - 2020-02-09
 
 ## Fixed
