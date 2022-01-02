@@ -2,7 +2,7 @@
 extern crate quote;
 #[macro_use]
 extern crate syn;
-extern crate proc_macro;
+extern crate proc_macro2;
 
 const DEFAULT_LEVEL: &str = "debug";
 const DEFAULT_NAME_PATTERN: &str = "{}";
@@ -114,12 +114,13 @@ pub fn time(
 
     if level != "never" {
         let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
+        let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
-        let ident = input_fn.ident;
-        let inputs = input_fn.decl.inputs;
-        let output = input_fn.decl.output;
-        let generics = &input_fn.decl.generics;
-        let where_clause = &input_fn.decl.generics.where_clause;
+        let ident = input_fn.sig.ident;
+        let inputs = input_fn.sig.inputs;
+        let output = input_fn.sig.output;
+        let generics = &input_fn.sig.generics;
+        let where_clause = &input_fn.sig.generics.where_clause;
         let block = input_fn.block;
 
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
@@ -134,7 +135,7 @@ pub fn time(
         };
 
         (quote!(
-            #visibility fn #ident #generics (#inputs) #output #where_clause {
+            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = ::logging_timer::timer!(#log_level; #timer_name);
                 #block
             }
@@ -176,12 +177,13 @@ pub fn stime(
 
     if level != "never" {
         let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
+        let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
-        let ident = input_fn.ident;
-        let inputs = input_fn.decl.inputs;
-        let output = input_fn.decl.output;
-        let generics = &input_fn.decl.generics;
-        let where_clause = &input_fn.decl.generics.where_clause;
+        let ident = input_fn.sig.ident;
+        let inputs = input_fn.sig.inputs;
+        let output = input_fn.sig.output;
+        let generics = &input_fn.sig.generics;
+        let where_clause = &input_fn.sig.generics.where_clause;
         let block = input_fn.block;
 
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
@@ -196,7 +198,7 @@ pub fn stime(
         };
 
         (quote!(
-            #visibility fn #ident #generics (#inputs) #output #where_clause {
+            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = ::logging_timer::stimer!(#log_level; #timer_name);
                 #block
             }
