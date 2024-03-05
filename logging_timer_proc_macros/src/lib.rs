@@ -117,6 +117,7 @@ pub fn time(
         let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
         let ident = input_fn.sig.ident;
+        let asyncness = input_fn.sig.asyncness;
         let inputs = input_fn.sig.inputs;
         let output = input_fn.sig.output;
         let generics = &input_fn.sig.generics;
@@ -135,7 +136,7 @@ pub fn time(
         };
 
         (quote!(
-            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
+            #(#attrs)* #visibility #asyncness fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = ::logging_timer::timer!(#log_level; #timer_name);
                 #block
             }
@@ -174,12 +175,13 @@ pub fn stime(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let (level, name_pattern) = get_log_level_and_name_pattern(metadata);
-
+    
     if level != "never" {
         let input_fn: syn::ItemFn = parse_macro_input!(input as syn::ItemFn);
         let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
         let ident = input_fn.sig.ident;
+        let asyncness = input_fn.sig.asyncness;
         let inputs = input_fn.sig.inputs;
         let output = input_fn.sig.output;
         let generics = &input_fn.sig.generics;
@@ -198,7 +200,7 @@ pub fn stime(
         };
 
         (quote!(
-            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
+            #(#attrs)* #visibility #asyncness fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = ::logging_timer::stimer!(#log_level; #timer_name);
                 #block
             }

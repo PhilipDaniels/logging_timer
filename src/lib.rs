@@ -263,7 +263,7 @@ impl<'name> LoggingTimer<'name> {
     /// ```norun
     /// let tmr = timer!("foo").level(Level::Trace);
     /// ```
-    #[deprecated(since = "0.3", note = "Please use the first parameter to the `timer` or `stimer` macro instead")]
+    #[deprecated(since = "0.3.0", note = "Please use the first parameter to the `timer` or `stimer` macro instead")]
     pub fn level(mut self, level: ::log::Level) -> Self {
         self.level = level;
         self
