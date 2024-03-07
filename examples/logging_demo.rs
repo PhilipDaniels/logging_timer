@@ -7,7 +7,6 @@ use logging_timer::{executing, finish, stime, stimer, time, timer};
 use std::{default, io::Write, time::Duration};
 use tokio::*;
 
-
 /// Demonstrates the various timer macros.
 ///
 /// To run in Linux, do:
@@ -99,10 +98,44 @@ async fn main() {
 
     executed_by_async().await;
     println!("");
+
+    unsafe {
+        unsafe_fn();
+    }
+    println!("");
+
+    async_trait_example().await;
 }
 
 struct Foo {
-    x: i32
+    x: i32,
+}
+
+#[time]
+pub unsafe fn unsafe_fn() {
+    println!("hello world");
+}
+
+#[async_trait::async_trait]
+trait Walker {
+    async fn walk(&self) -> bool;
+}
+
+#[derive(Default)]
+struct Animal;
+
+#[async_trait::async_trait]
+impl Walker for Animal {
+    #[time]
+    async fn walk(&self) -> bool {
+        time::sleep(Duration::from_secs(2)).await;
+        false
+    }
+}
+
+async fn async_trait_example() {
+    let dog = Animal::default();
+    dog.walk().await;
 }
 
 impl Foo {
@@ -208,9 +241,6 @@ fn execute_and_finish_without_args() {
     finish!(tmr);
 }
 
-
-
-
 trait AsyncFoo {
     async fn foo(&self);
 }
@@ -218,15 +248,12 @@ trait AsyncFoo {
 #[derive(Default)]
 struct AsyncOof {}
 
-
-
 impl AsyncFoo for AsyncOof {
     #[time("AsyncFoo::{}")]
     async fn foo(&self) {
         time::sleep(Duration::from_millis(10000)).await;
-    } 
+    }
 }
-
 
 async fn executed_by_async() {
     let foo_async = AsyncOof::default();

@@ -18,6 +18,7 @@ logging_timer_proc_macros = { path = "./logging_timer_proc_macros" }
 
 
 [dev-dependencies]
+async-trait = "0.1.77"
 env_logger = "0.9"
 chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1.36.0", features = ["full"] }
