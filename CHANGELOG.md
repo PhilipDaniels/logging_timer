@@ -1,3 +1,13 @@
+# v1.1.1 - 2024-03-10
+
+## Fixed
+* Issue https://github.com/PhilipDaniels/logging_timer/issues/4 (unsafeness)
+* Issue https://github.com/PhilipDaniels/logging_timer/issues/3 (asyncness)
+  Fixed by PR https://github.com/PhilipDaniels/logging_timer/pull/5
+  contributed by S0c5.
+  The macros now preserve the `unsafe` and `async` keywords when they
+  appear in fn signatures. Previously they were stripped by the library.
+
 # v1.1.0 - 2022-01-02
 
 ## Fixed

@@ -155,6 +155,19 @@ Here the `[Timer*]` blocks are the `target` field from log's [Record](https://do
 struct and `[dnscan/src/main.rs/63]` is the filename and number from `Record` - this captures the place where the timer was
 instantiated. The module is also set, but is not shown in these examples.
 
+# What is Measured?
+
+The time that is logged is the **wall-clock time** - the difference between the start
+of execution of the function and the drop of the timer at the end of the function.
+
+The wall clock time is not necessarily length of time that the function spent executing
+on the CPU. This is true for a normal function due to thread pre-emption, but it especially
+true for `async` functions which may spend a large part of their lives suspended.
+
+For more sophisticated usage you may want to look into the [Tokio Tracing](https://github.com/tokio-rs/tracing)
+crate.
+
+
 # Code Examples
 
 There is also an example program in the examples folder which demonstrates all the
