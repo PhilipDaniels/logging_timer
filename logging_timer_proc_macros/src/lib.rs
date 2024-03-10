@@ -1,3 +1,5 @@
+use syn::{spanned::Spanned, Expr, Stmt, WhereClause, WherePredicate};
+
 #[macro_use]
 extern crate quote;
 #[macro_use]
@@ -10,7 +12,9 @@ const DEFAULT_NAME_PATTERN: &str = "{}";
 fn extract_literal(token_tree: &proc_macro::TokenTree) -> String {
     let s = match token_tree {
         proc_macro::TokenTree::Literal(literal) => literal.to_string(),
-        _ => panic!("Invalid argument. Specify at most two string literal arguments, for log level and name pattern, in that order.")
+        _ => panic!(
+            "Invalid argument. Specify at most two string literal arguments, for log level and name pattern, in that order."
+        ),
     };
 
     // String literals seem to come through including their double quotes. Trim them off.
@@ -44,7 +48,9 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
     let first_arg = extract_literal(&macro_args[0]);
 
     if first_arg.contains("{}") && macro_args.len() == 2 {
-        panic!("Invalid first argument. Specify the log level as the first argument and the pattern as the second.");
+        panic!(
+            "Invalid first argument. Specify the log level as the first argument and the pattern as the second."
+        );
     }
 
     let first_arg_lower = first_arg.to_ascii_lowercase();
@@ -52,15 +58,15 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
         match first_arg_lower.as_str() {
             "error" | "warn" | "info" | "debug" | "trace" | "never" => {
                 // User specified a valid log level as their only argument.
-                return (first_arg_lower, DEFAULT_NAME_PATTERN.to_string())
+                return (first_arg_lower, DEFAULT_NAME_PATTERN.to_string());
             }
             _ => {
                 // User specified something that doesn't look like a log-level.
                 // It may be a pattern with "{}", or it may just be a string.
                 // In any case, consider it to be the pattern and return it
                 // n.b. the original, not the lowered version.
-                return (DEFAULT_LEVEL.to_string(), first_arg.to_string())
-            },
+                return (DEFAULT_LEVEL.to_string(), first_arg.to_string());
+            }
         }
     }
 
@@ -73,9 +79,11 @@ fn get_log_level_and_name_pattern(metadata: proc_macro::TokenStream) -> (String,
                 second_arg += DEFAULT_NAME_PATTERN;
             }
 
-            return (first_arg_lower, second_arg.to_string())
+            return (first_arg_lower, second_arg.to_string());
         }
-        _ => panic!("Invalid first argument. Specify the log level as the first argument and the pattern as the second.")
+        _ => panic!(
+            "Invalid first argument. Specify the log level as the first argument and the pattern as the second."
+        ),
     }
 }
 
@@ -117,11 +125,23 @@ pub fn time(
         let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
         let ident = input_fn.sig.ident;
+        let asyncness = input_fn.sig.asyncness;
+        let unsafety = input_fn.sig.unsafety;
         let inputs = input_fn.sig.inputs;
         let output = input_fn.sig.output;
         let generics = &input_fn.sig.generics;
         let where_clause = &input_fn.sig.generics.where_clause;
         let block = input_fn.block;
+        let is_async_trait = if let Some(w) = where_clause {
+            w.predicates.iter().any(|x| match x {
+                WherePredicate::Lifetime(lifetime) => {
+                    lifetime.bounds.iter().any(|x| x.ident == "async_trait")
+                }
+                _ => false,
+            })
+        } else {
+            false
+        };
 
         let timer_name = get_timer_name(&name_pattern, &ident.to_string());
 
@@ -134,9 +154,50 @@ pub fn time(
             _ => panic!("Unrecognized log level: {}", level),
         };
 
-        (quote!(
-            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
+        let block = if is_async_trait {
+            let modified_block: Vec<_> = block
+                .stmts
+                .iter()
+                .map(|x| match x {
+                    Stmt::Expr(Expr::Call(e)) => {
+                        let func = &e.func;
+                        let args = match &e.args.first() {
+                            Some(Expr::Async(async_block)) => {
+                                let block = &async_block.block;
+                                let capture = &async_block.capture;
+                                let stmts = &block.stmts;
+                                quote! {
+                                    async #capture {
+                                        let _tmr = ::logging_timer::timer!(#log_level; #timer_name);
+                                        #(#stmts)*
+                                    }
+                                }
+                            }
+                            def @ _ => quote! { #def },
+                        };
+
+                        quote! {
+                            #func(#args)
+                        }
+                    }
+                    f @ _ => quote! {
+                        #f
+                    },
+                })
+                .collect();
+
+            quote! {
+                #(#modified_block)*
+            }
+        } else {
+            quote! {
                 let _tmr = ::logging_timer::timer!(#log_level; #timer_name);
+                #block
+            }
+        };
+
+        (quote!(
+            #(#attrs)* #visibility #unsafety #asyncness fn #ident #generics (#inputs) #output #where_clause {
                 #block
             }
         ))
@@ -180,6 +241,7 @@ pub fn stime(
         let attrs = input_fn.attrs;
         let visibility = input_fn.vis;
         let ident = input_fn.sig.ident;
+        let asyncness = input_fn.sig.asyncness;
         let inputs = input_fn.sig.inputs;
         let output = input_fn.sig.output;
         let generics = &input_fn.sig.generics;
@@ -198,7 +260,7 @@ pub fn stime(
         };
 
         (quote!(
-            #(#attrs)* #visibility fn #ident #generics (#inputs) #output #where_clause {
+            #(#attrs)* #visibility #asyncness fn #ident #generics (#inputs) #output #where_clause {
                 let _tmr = ::logging_timer::stimer!(#log_level; #timer_name);
                 #block
             }

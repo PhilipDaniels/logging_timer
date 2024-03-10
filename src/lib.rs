@@ -157,7 +157,7 @@ use std::time::Instant;
 
 // Proc-macros have to be defined in their own lib crate (for now).
 // Re-export them so that users only have to care about this one.
-pub use logging_timer_proc_macros::{time, stime};
+pub use logging_timer_proc_macros::{stime, time};
 
 // Re-export log level so it can be used from the proc-macros. If we don't have this,
 // then the expanded macro has no way of referring to `::log::Level` unless the caller
@@ -182,7 +182,7 @@ pub use ::log::Level;
  * returns false does not increase the size of the value at all. Rust is cool :-)
  */
 
- /// When this struct is dropped, it logs a message stating its name and how long
+/// When this struct is dropped, it logs a message stating its name and how long
 /// the execution time was. Can be used to time functions or other critical areas.
 pub struct LoggingTimer<'name> {
     /// The log level. Defaults to Debug.
@@ -226,7 +226,7 @@ impl<'name> LoggingTimer<'name> {
                 line,
                 name,
                 finished: AtomicBool::new(false),
-                extra_info
+                extra_info,
             })
         } else {
             None
@@ -263,7 +263,10 @@ impl<'name> LoggingTimer<'name> {
     /// ```norun
     /// let tmr = timer!("foo").level(Level::Trace);
     /// ```
-    #[deprecated(since = "0.3", note = "Please use the first parameter to the `timer` or `stimer` macro instead")]
+    #[deprecated(
+        since = "0.3.0",
+        note = "Please use the first parameter to the `timer` or `stimer` macro instead"
+    )]
     pub fn level(mut self, level: ::log::Level) -> Self {
         self.level = level;
         self
@@ -303,18 +306,25 @@ impl<'name> LoggingTimer<'name> {
             (TimerTarget::Starting, None, Some(args)) => {
                 self.log_record(target, format_args!("{}, {}", self.name, args))
             }
-            (TimerTarget::Starting, None, None) => self.log_record(target, format_args!("{}", self.name)),
+            (TimerTarget::Starting, None, None) => {
+                self.log_record(target, format_args!("{}", self.name))
+            }
 
-            (_, Some(info), Some(args)) => {
-                self.log_record(target, format_args!("{}, Elapsed={:?}, {}, {}", self.name, self.elapsed(), info, args))
+            (_, Some(info), Some(args)) => self.log_record(
+                target,
+                format_args!("{}, Elapsed={:?}, {}, {}", self.name, self.elapsed(), info, args),
+            ),
+            (_, Some(info), None) => self.log_record(
+                target,
+                format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), info),
+            ),
+            (_, None, Some(args)) => self.log_record(
+                target,
+                format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), args),
+            ),
+            (_, None, None) => {
+                self.log_record(target, format_args!("{}, Elapsed={:?}", self.name, self.elapsed()))
             }
-            (_, Some(info), None) => {
-                self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), info))
-            }
-            (_, None, Some(args)) => {
-                self.log_record(target, format_args!("{}, Elapsed={:?}, {}", self.name, self.elapsed(), args))
-            }
-            (_, None, None) => self.log_record(target, format_args!("{}, Elapsed={:?}", self.name, self.elapsed())),
         };
     }
 

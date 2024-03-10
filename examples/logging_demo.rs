@@ -4,7 +4,8 @@
 use chrono::{DateTime, Utc};
 use env_logger::Builder;
 use logging_timer::{executing, finish, stime, stimer, time, timer};
-use std::io::Write;
+use std::{default, io::Write, time::Duration};
+use tokio::*;
 
 /// Demonstrates the various timer macros.
 ///
@@ -14,8 +15,8 @@ use std::io::Write;
 /// To run in PowerShell, do:
 ///     $env:RUST_LOG="debug"
 ///     cargo run --example logging_demo
-
-fn main() {
+#[tokio::main]
+async fn main() {
     configure_logging();
 
     let _main_tmr = stimer!(log::Level::Error; "MAIN");
@@ -94,10 +95,47 @@ fn main() {
 
     execute_and_finish_without_args();
     println!("");
+
+    executed_by_async().await;
+    println!("");
+
+    unsafe {
+        unsafe_fn();
+    }
+    println!("");
+
+    async_trait_example().await;
 }
 
 struct Foo {
-    x: i32
+    x: i32,
+}
+
+#[time]
+pub unsafe fn unsafe_fn() {
+    println!("hello world");
+}
+
+#[async_trait::async_trait]
+trait Walker {
+    async fn walk(&self) -> bool;
+}
+
+#[derive(Default)]
+struct Animal;
+
+#[async_trait::async_trait]
+impl Walker for Animal {
+    #[time]
+    async fn walk(&self) -> bool {
+        time::sleep(Duration::from_secs(2)).await;
+        false
+    }
+}
+
+async fn async_trait_example() {
+    let dog = Animal::default();
+    dog.walk().await;
 }
 
 impl Foo {
@@ -201,6 +239,25 @@ fn execute_and_finish_without_args() {
     let tmr = stimer!("WITHOUT_ARGS", "Expecting to process {} widgets", 20);
     executing!(tmr);
     finish!(tmr);
+}
+
+trait AsyncFoo {
+    async fn foo(&self);
+}
+
+#[derive(Default)]
+struct AsyncOof {}
+
+impl AsyncFoo for AsyncOof {
+    #[time("AsyncFoo::{}")]
+    async fn foo(&self) {
+        time::sleep(Duration::from_millis(10000)).await;
+    }
+}
+
+async fn executed_by_async() {
+    let foo_async = AsyncOof::default();
+    foo_async.foo().await;
 }
 
 // Just configures logging in such a way that we can see everything.
