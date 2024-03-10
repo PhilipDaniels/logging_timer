@@ -1,4 +1,4 @@
-use syn::{spanned::Spanned, Expr, Stmt, WhereClause, WherePredicate};
+use syn::{Expr, Stmt, WherePredicate};
 
 #[macro_use]
 extern crate quote;
